@@ -153,7 +153,7 @@ let payrollRows=[],history=JSON.parse(localStorage.getItem('tcp_hist')||'[]');
 
 // ===== API =====
 var API_BASE=(function(){
- if(location.protocol==='file:'||location.hostname===''){
+ if(location.protocol==='file:'||location.hostname===''||location.hostname==='localhost'){
  return'https://taxcalc-api.vichoo2020.workers.dev';
  }
  if(location.hostname.endsWith('github.io')){
