@@ -168,16 +168,44 @@ paypal:'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHB
 };
 
 var IS_OFFLINE=false;
+var _nativeHttp=null;
+function getNativeHttp(){
+if(_nativeHttp)return _nativeHttp;
+try{
+if(typeof cordova!=='undefined'&&cordova.plugins&&cordova.plugins.http){
+_nativeHttp=cordova.plugins.http;return _nativeHttp;
+}
+}catch(e){}
+return null;
+}
 
 async function api(url,opts={}){ 
 if(!opts.headers)opts.headers={};
 opts.headers['Content-Type']='application/json';
 if(token)opts.headers['Authorization']='Bearer '+token;
 var fullUrl=url.startsWith('http')?url:API_BASE+url;
-// Use XMLHttpRequest — works reliably in file:// APK WebView with AllowUniversalAccess
+var method=(opts.method||'GET').toLowerCase();
+
+// APK: use cordova-plugin-advanced-http (native, no CORS, instant)
+var nativeHttp=getNativeHttp();
+if(nativeHttp){
+ return new Promise(function(resolve){
+ var headers=Object.assign({'Content-Type':'application/json'},opts.headers);
+ if(token)headers['Authorization']='Bearer '+token;
+ var fn=method==='post'?nativeHttp.post:nativeHttp.get;
+ fn(fullUrl,headers,opts.body?JSON.parse(opts.body):{},function(r){
+ IS_OFFLINE=false;
+ try{resolve(typeof r.data==='string'?JSON.parse(r.data):r.data)}catch(e){resolve({error:'Parse error'})}
+ },function(e){
+ IS_OFFLINE=true;resolve(offlineApi(url,opts));
+ });
+ });
+}
+
+// Web: use XHR
 return new Promise(function(resolve){
  var xhr=new XMLHttpRequest();
- xhr.open(opts.method||'GET',fullUrl,true);
+ xhr.open(method,fullUrl,true);
  Object.keys(opts.headers).forEach(function(k){xhr.setRequestHeader(k,opts.headers[k])});
  xhr.timeout=8000;
  xhr.onload=function(){
@@ -186,12 +214,7 @@ return new Promise(function(resolve){
  catch(e){resolve({error:'Parse error',status:xhr.status})}
  };
  xhr.onerror=function(){
- // XHR failed — try fetch as fallback
- fetch(fullUrl,{...opts,mode:'cors'}).then(function(r){return r.json()}).then(function(d){
- IS_OFFLINE=false;resolve(d);
- }).catch(function(){
  IS_OFFLINE=true;resolve(offlineApi(url,opts));
- });
  };
  xhr.ontimeout=function(){
  IS_OFFLINE=true;resolve(offlineApi(url,opts));
@@ -812,4 +835,12 @@ function toast(msg,cls){
 }
 
 // ===== Init =====
-updateUI();loadUser();
+if(typeof cordova!=='undefined'){
+ document.addEventListener('deviceready',function(){
+ // Configure native HTTP plugin
+ try{cordova.plugins.http.setDataSerializer('json');cordova.plugins.http.setHeader('*','Accept','application/json')}catch(e){}
+ updateUI();loadUser();
+ },false);
+}else{
+ updateUI();loadUser();
+}
