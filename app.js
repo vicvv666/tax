@@ -666,7 +666,7 @@ function renderPaymentModal(){
  html+='<\/div>';
  // QR code
  html+='<div id="payQRBox" style="text-align:center;margin:12px auto">';
- html+='<img id="payQRImg" src="'+API_BASE+'/api/qr/alipay" style="width:260px;height:auto;max-height:360px;border-radius:12px;border:2px solid var(--border);display:block;margin:0 auto" onerror="this.alt=\'QR loading...\'">';
+ html+='<img id="payQRImg" src="'+API_BASE+'/api/qr/alipay" style="width:80vw;max-width:400px;height:auto;border-radius:12px;border:3px solid var(--border);display:block;margin:0 auto" onerror="this.alt=\'QR loading...\'">';
  html+='<p id="payAmtLabel" style="margin-top:12px;font-size:28px;font-weight:900;color:var(--pri)">¥19</p>';
  html+='<p id="payMethodLabel" style="color:var(--dim);font-size:18px;font-weight:700">\u652f\u4ed8\u5b9d\u626b\u7801\u4ed8\u6b3e<\/p>';
  html+='<\/div>';
