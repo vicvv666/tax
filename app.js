@@ -154,7 +154,11 @@ let payrollRows=[],history=JSON.parse(localStorage.getItem('tcp_hist')||'[]');
 // ===== API =====
 var API_BASE=(function(){
  if(location.protocol==='file:'||location.hostname===''){
+<<<<<<< HEAD
   return'https://213a9a54082c06.lhr.life';
+=======
+  return location.origin;
+>>>>>>> 5b1511f (税算寶 - Deploy to Render)
  }
  return location.origin;
 })();
