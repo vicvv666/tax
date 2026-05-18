@@ -665,9 +665,9 @@ function renderPaymentModal(){
  html+='<button id="payTabPaypal" onclick="switchPayTab(\'paypal\')" style="flex:1;padding:14px 8px;font-size:20px;font-weight:900;border-radius:14px;border:2px solid var(--border);background:transparent;color:var(--dim);cursor:pointer;transition:all .2s">PayPal<\/button>';
  html+='<\/div>';
  // QR code
- html+='<div id="payQRBox" style="text-align:center;margin:8px auto">';
- html+='<img id="payQRImg" src="'+API_BASE+'/api/qr/alipay" style="max-width:200px;max-height:200px;border-radius:12px;border:2px solid var(--border)">';
- html+='<p id="payAmtLabel" style="margin-top:10px;font-size:28px;font-weight:900;color:var(--pri)">\u00a519<\/p>';
+ html+='<div id="payQRBox" style="text-align:center;margin:12px auto">';
+ html+='<img id="payQRImg" src="'+API_BASE+'/api/qr/alipay" style="width:260px;height:auto;max-height:360px;border-radius:12px;border:2px solid var(--border);display:block;margin:0 auto" onerror="this.alt=\'QR loading...\'">';
+ html+='<p id="payAmtLabel" style="margin-top:12px;font-size:28px;font-weight:900;color:var(--pri)">¥19</p>';
  html+='<p id="payMethodLabel" style="color:var(--dim);font-size:18px;font-weight:700">\u652f\u4ed8\u5b9d\u626b\u7801\u4ed8\u6b3e<\/p>';
  html+='<\/div>';
  // Submit button
@@ -713,16 +713,25 @@ function updatePayAmount(){
  }
 }
 async function submitPayment(){
-  if(!user)return toast(t('needLogin'),'err');
-  var statusEl=document.getElementById('payStatus');
-  if(statusEl)statusEl.textContent=t('submitting');
-  var r=await api('/api/submit-payment',{method:'POST',body:JSON.stringify({method:curPayMethod,plan_type:curPlanType})});
-  if(r.ok){
-    if(statusEl)statusEl.innerHTML='<span style="color:var(--accent)">'+t('paymentPending')+'<\/span>';
-    toast(t('paymentSubmitted'),'ok');
-  } else {
-    if(statusEl)statusEl.innerHTML='<span style="color:var(--danger)">'+(r.error||t('error'))+'<\/span>';
-  }
+ if(!user)return toast(t('needLogin'),'err');
+ var statusEl=document.getElementById('payStatus');
+ if(statusEl)statusEl.textContent=t('submitting');
+ // 1. Submit payment record
+ var r=await api('/api/submit-payment',{method:'POST',body:JSON.stringify({method:curPayMethod,plan_type:curPlanType})});
+ if(r.ok&&r.payment_id){
+ // 2. Verify payment → upgrade to pro
+ var v=await api('/api/verify-payment/'+r.payment_id,{method:'POST'});
+ if(v.ok&&v.membership==='pro'){
+ if(statusEl)statusEl.innerHTML='<span style="color:#10b981;font-weight:900">✅ Pro 已激活！</span>';
+ await loadUser();
+ setTimeout(function(){closeModal('priceModal');toast('🎉 Pro 会员已激活！','ok');},1500);
+ } else {
+ if(statusEl)statusEl.innerHTML='<span style="color:var(--accent)">'+t('paymentPending')+'</span>';
+ toast(t('paymentSubmitted'),'ok');
+ }
+ } else {
+ if(statusEl)statusEl.innerHTML='<span style="color:var(--danger)">'+(r.error||t('error'))+'</span>';
+ }
 }
 function startPaymentPolling(){
   if(payPollTimer)clearInterval(payPollTimer);
