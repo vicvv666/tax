@@ -163,39 +163,58 @@ var API_BASE=(function(){
 })();
 var IS_OFFLINE=false;
 
-async function api(url,opts={}){
- if(!opts.headers)opts.headers={};
- opts.headers['Content-Type']='application/json';
- if(token)opts.headers['Authorization']='Bearer '+token;
- var fullUrl=url.startsWith('http')?url:API_BASE+url;
- try{
-  const r=await fetch(fullUrl,opts);
-  IS_OFFLINE=false;
-  return await r.json();
- }catch(e){
-  IS_OFFLINE=true;
-  return offlineApi(url,opts);
- }
+async function api(url,opts={}){ 
+if(!opts.headers)opts.headers={};
+opts.headers['Content-Type']='application/json';
+if(token)opts.headers['Authorization']='Bearer '+token;
+var fullUrl=url.startsWith('http')?url:API_BASE+url;
+try{
+const r=await fetch(fullUrl,opts);
+if(r.ok||r.status===400||r.status===401){
+IS_OFFLINE=false;
+// Sync offline users when back online
+syncOfflineUsers();
+return await r.json();
+}
+// Non-2xx but valid response — still online, just an error
+IS_OFFLINE=false;
+return await r.json();
+}catch(e){
+// Network error — could be CORS or genuinely offline
+// Retry once with no-cors mode disabled (some APK WebViews need this)
+try{
+const r2=await fetch(fullUrl,{...opts,mode:'cors'});
+IS_OFFLINE=false;
+return await r2.json();
+}catch(e2){
+IS_OFFLINE=true;
+return offlineApi(url,opts);
+}
+}
 }
 
 function offlineApi(url,opts){
  var body=opts.body?JSON.parse(opts.body):{};
- // Offline registration
+ // Offline registration — save locally AND queue for sync
  if(url==='/api/register'){
-  var users=JSON.parse(localStorage.getItem('tcp_offline_users')||'{}');
-  if(users[body.username])return{error:'Username already exists'};
-  users[body.username]={password:body.password,membership:'pro',expires_at:'2027-12-31'};
-  localStorage.setItem('tcp_offline_users',JSON.stringify(users));
-  var fakeToken=btoa(JSON.stringify({sub:Date.now(),username:body.username,exp:'2027-12-31T23:59:59'}));
-  return{ok:true,token:fakeToken,user:{id:Date.now(),username:body.username,membership:'pro',expires_at:'2027-12-31'}};
+ var users=JSON.parse(localStorage.getItem('tcp_offline_users')||'{}');
+ if(users[body.username])return{error:'Username already exists'};
+ users[body.username]={password:body.password,membership:'pro',expires_at:'2027-12-31'};
+ localStorage.setItem('tcp_offline_users',JSON.stringify(users));
+ // Queue for cloud sync
+ var queue=JSON.parse(localStorage.getItem('tcp_sync_queue')||'[]');
+ queue.push({type:'register',username:body.username,password:body.password});
+ localStorage.setItem('tcp_sync_queue',JSON.stringify(queue));
+ var fakeToken=btoa(JSON.stringify({sub:Date.now(),username:body.username,exp:'2027-12-31T23:59:59'}));
+ return{ok:true,token:fakeToken,user:{id:Date.now(),username:body.username,membership:'pro',expires_at:'2027-12-31'}};
  }
- // Offline login
+ // Offline login — check local first, then try cloud
  if(url==='/api/login'){
-  var users=JSON.parse(localStorage.getItem('tcp_offline_users')||'{}');
-  var u=users[body.username];
-  if(!u||u.password!==body.password)return{error:'Invalid username or password'};
-  var fakeToken=btoa(JSON.stringify({sub:Date.now(),username:body.username,exp:'2027-12-31T23:59:59'}));
-  return{ok:true,token:fakeToken,user:{id:Date.now(),username:body.username,membership:u.membership,expires_at:u.expires_at}};
+ var users=JSON.parse(localStorage.getItem('tcp_offline_users')||'{}');
+ var u=users[body.username];
+ if(!u||u.password!==body.password)return{error:'Invalid username or password'};
+ var fakeToken=btoa(JSON.stringify({sub:Date.now(),username:body.username,exp:'2027-12-31T23:59:59'}));
+ return{ok:true,token:fakeToken,user:{id:Date.now(),username:body.username,membership:u.membership,expires_at:u.expires_at}};
  }
  // Offline get user
  if(url==='/api/user'){
@@ -207,6 +226,45 @@ function offlineApi(url,opts){
  if(url==='/api/submit-payment')return{ok:true};
  if(url==='/api/payment-status')return{ok:true,payments:[]};
  return{error:'Network unavailable - offline mode'};
+}
+
+// Sync offline users to cloud when back online
+async function syncOfflineUsers(){
+var queue=JSON.parse(localStorage.getItem('tcp_sync_queue')||'[]');
+if(!queue.length)return;
+var remaining=[];
+for(var i=0;i<queue.length;i++){
+var item=queue[i];
+if(item.type==='register'){
+try{
+var r=await fetch(API_BASE+'/api/register',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({username:item.username,password:item.password})
+});
+var data=await r.json();
+if(data.ok){
+var lr=await fetch(API_BASE+'/api/login',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({username:item.username,password:item.password})
+});
+var ld=await lr.json();
+if(ld.ok){
+token=ld.token;localStorage.setItem('tcp_token',token);
+user=ld.user;localStorage.setItem('tcp_offline_user',JSON.stringify(ld.user));
+updateUI();
+}
+continue;
+}
+}catch(e){}
+}
+remaining.push(item);
+}
+if(remaining.length!==queue.length){
+localStorage.setItem('tcp_sync_queue',JSON.stringify(remaining));
+if(!remaining.length)toast('☁️ Cloud sync complete','ok');
+}
 }
 
 function MEMBERSHIP_PRICING(){return{free:{monthly_cny:0,monthly_usd:0},pro:{monthly_cny:19,monthly_usd:2.88}};}
