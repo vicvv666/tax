@@ -174,29 +174,30 @@ if(!opts.headers)opts.headers={};
 opts.headers['Content-Type']='application/json';
 if(token)opts.headers['Authorization']='Bearer '+token;
 var fullUrl=url.startsWith('http')?url:API_BASE+url;
-try{
-const r=await fetch(fullUrl,opts);
-if(r.ok||r.status===400||r.status===401){
-IS_OFFLINE=false;
-// Sync offline users when back online
-syncOfflineUsers();
-return await r.json();
-}
-// Non-2xx but valid response — still online, just an error
-IS_OFFLINE=false;
-return await r.json();
-}catch(e){
-// Network error — could be CORS or genuinely offline
-// Retry once with no-cors mode disabled (some APK WebViews need this)
-try{
-const r2=await fetch(fullUrl,{...opts,mode:'cors'});
-IS_OFFLINE=false;
-return await r2.json();
-}catch(e2){
-IS_OFFLINE=true;
-return offlineApi(url,opts);
-}
-}
+// Use XMLHttpRequest — works reliably in file:// APK WebView with AllowUniversalAccess
+return new Promise(function(resolve){
+ var xhr=new XMLHttpRequest();
+ xhr.open(opts.method||'GET',fullUrl,true);
+ Object.keys(opts.headers).forEach(function(k){xhr.setRequestHeader(k,opts.headers[k])});
+ xhr.timeout=8000;
+ xhr.onload=function(){
+ IS_OFFLINE=false;
+ try{var data=JSON.parse(xhr.responseText);resolve(data)}
+ catch(e){resolve({error:'Parse error',status:xhr.status})}
+ };
+ xhr.onerror=function(){
+ // XHR failed — try fetch as fallback
+ fetch(fullUrl,{...opts,mode:'cors'}).then(function(r){return r.json()}).then(function(d){
+ IS_OFFLINE=false;resolve(d);
+ }).catch(function(){
+ IS_OFFLINE=true;resolve(offlineApi(url,opts));
+ });
+ };
+ xhr.ontimeout=function(){
+ IS_OFFLINE=true;resolve(offlineApi(url,opts));
+ };
+ xhr.send(opts.body||null);
+});
 }
 
 function offlineApi(url,opts){
