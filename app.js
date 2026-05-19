@@ -852,21 +852,32 @@ updateUI();loadUser();
 // APK network diagnostic — test connectivity on startup
 if(IS_APK){
  setTimeout(async function(){
-  var tests=[
-   {name:'CF Worker',url:'https://taxcalc-api.vichoo2020.workers.dev/api/health'},
-   {name:'httpbin',url:'https://httpbin.org/get'},
-   {name:'google',url:'https://www.google.com/generate_204'}
-  ];
-  for(var i=0;i<tests.length;i++){
-   (function(t){
-    var xhr=new XMLHttpRequest();
-    xhr.open('GET',t.url,true);
-    xhr.timeout=8000;
-    xhr.onload=function(){showDebug(t.name+': OK '+xhr.status+' ('+xhr.responseText.length+'B)');};
-    xhr.onerror=function(){showDebug(t.name+': XHR ERROR');};
-    xhr.ontimeout=function(){showDebug(t.name+': TIMEOUT 8s');};
-    xhr.send();
-   })(tests[i]);
-  }
+  // Test 1: CF Worker GET (shouldInterceptRequest proxies this)
+  var xhr1=new XMLHttpRequest();
+  xhr1.open('GET','https://taxcalc-api.vichoo2020.workers.dev/api/health',true);
+  xhr1.timeout=8000;
+  xhr1.onload=function(){showDebug('CF-GET: OK '+xhr1.status+' ('+xhr1.responseText.length+'B)');};
+  xhr1.onerror=function(){showDebug('CF-GET: XHR ERROR');};
+  xhr1.ontimeout=function(){showDebug('CF-GET: TIMEOUT');};
+  xhr1.send();
+
+  // Test 2: CF Worker POST via _body param proxy
+  var testBody=encodeURIComponent(JSON.stringify({username:'__diag__',password:'test1234'}));
+  var xhr2=new XMLHttpRequest();
+  xhr2.open('GET','https://taxcalc-api.vichoo2020.workers.dev/api/register?_body='+testBody,true);
+  xhr2.timeout=8000;
+  xhr2.onload=function(){showDebug('CF-POST: OK '+xhr2.status+' '+xhr2.responseText.substring(0,60));};
+  xhr2.onerror=function(){showDebug('CF-POST: XHR ERROR');};
+  xhr2.ontimeout=function(){showDebug('CF-POST: TIMEOUT');};
+  xhr2.send();
+
+  // Test 3: httpbin
+  var xhr3=new XMLHttpRequest();
+  xhr3.open('GET','https://httpbin.org/get',true);
+  xhr3.timeout=8000;
+  xhr3.onload=function(){showDebug('httpbin: OK');};
+  xhr3.onerror=function(){showDebug('httpbin: XHR ERROR');};
+  xhr3.ontimeout=function(){showDebug('httpbin: TIMEOUT');};
+  xhr3.send();
  },2000);
 }
