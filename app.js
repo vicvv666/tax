@@ -841,3 +841,25 @@ function toast(msg,cls){
 
 // ===== Init =====
 updateUI();loadUser();
+
+// APK network diagnostic — test connectivity on startup
+if(IS_APK){
+ setTimeout(async function(){
+  var tests=[
+   {name:'CF Worker',url:'https://taxcalc-api.vichoo2020.workers.dev/api/health'},
+   {name:'httpbin',url:'https://httpbin.org/get'},
+   {name:'google',url:'https://www.google.com/generate_204'}
+  ];
+  for(var i=0;i<tests.length;i++){
+   (function(t){
+    var xhr=new XMLHttpRequest();
+    xhr.open('GET',t.url,true);
+    xhr.timeout=8000;
+    xhr.onload=function(){showDebug(t.name+': OK '+xhr.status+' ('+xhr.responseText.length+'B)');};
+    xhr.onerror=function(){showDebug(t.name+': XHR ERROR');};
+    xhr.ontimeout=function(){showDebug(t.name+': TIMEOUT 8s');};
+    xhr.send();
+   })(tests[i]);
+  }
+ },2000);
+}
