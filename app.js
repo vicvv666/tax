@@ -843,17 +843,17 @@ updateUI();loadUser();
 // APK network diagnostic — test connectivity on startup
 if(IS_APK){
  setTimeout(async function(){
-  // Test 1: CF Worker GET via AndroidApi
+  // Test 1: Render proxy GET
   try{
-   var r1=await nativeFetch('GET','https://taxcalc-api.vichoo2020.workers.dev/api/health',null,{});
-   showDebug('CF-GET: '+(r1.ok?'OK '+r1.service:r1.error||'fail'));
-  }catch(e){showDebug('CF-GET: ERROR '+e.message);}
+   var r1=await nativeFetch('GET',API_BASE+'/api/health',null,{});
+   showDebug('API-GET: '+(r1.ok?'OK '+r1.service:r1.error||'fail'));
+  }catch(e){showDebug('API-GET: ERROR '+e.message);}
 
-  // Test 2: CF Worker POST via AndroidApi
+  // Test 2: Render proxy POST
   try{
-   var r2=await nativeFetch('POST','https://taxcalc-api.vichoo2020.workers.dev/api/register',{username:'__diag2__',password:'test1234'},{});
-   showDebug('CF-POST: '+(r2.ok?'OK '+r2.username:r2.error||'fail'));
-  }catch(e){showDebug('CF-POST: ERROR '+e.message);}
+   var r2=await nativeFetch('POST',API_BASE+'/api/register',{username:'__diag3__',password:'test1234'},{});
+   showDebug('API-POST: '+(r2.ok?'OK user='+r2.username:r2.error||'fail'));
+  }catch(e){showDebug('API-POST: ERROR '+e.message);}
 
   // Test 3: httpbin
   try{
