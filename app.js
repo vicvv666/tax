@@ -164,40 +164,31 @@ var API_BASE=(function(){
 var IS_OFFLINE=false;
 var IS_APK=(location.protocol==='file:');
 
-// APK: POST body goes into _body query param, Kotlin shouldInterceptRequest reads it and makes real POST
+// APK: Use AndroidApi.fetch() bridge (Kotlin @JavascriptInterface with browser-like headers)
 // Web: Use fetch() normally
-function xhrPromise(method,url,bodyObj,headersObj){
+window.__apiCb={};
+var _apiCbId=0;
+function nativeFetch(method,url,bodyObj,headersObj){
  return new Promise(function(resolve){
- var xhr=new XMLHttpRequest();
- // APK POST: encode body into URL _body param, send as GET (Kotlin intercepts & makes real POST)
- var actualMethod=method;
- var actualUrl=url;
- if(IS_APK&&method==='POST'&&bodyObj){
- var sep=url.indexOf('?')>=0?'&':'?';
- actualUrl=url+sep+'_body='+encodeURIComponent(JSON.stringify(bodyObj));
- actualMethod='GET';
- }
- xhr.open(actualMethod,actualUrl,true);
- xhr.setRequestHeader('Content-Type','application/json');
- xhr.setRequestHeader('Accept','application/json');
- if(headersObj){
- var keys=Object.keys(headersObj);
- for(var i=0;i<keys.length;i++){
- if(keys[i]!=='Content-Type'&&keys[i]!=='Accept')xhr.setRequestHeader(keys[i],headersObj[keys[i]]);
- }
- }
- xhr.timeout=10000;
- xhr.onload=function(){
- try{var d=JSON.parse(xhr.responseText);d._httpStatus=xhr.status;resolve(d)}
- catch(e){resolve({error:'Parse error: '+e.message,status:xhr.status,_body:xhr.responseText?.substring(0,100)})}
+ var cbId='cb_'+(++_apiCbId);
+ var settled=false;
+ var timer=setTimeout(function(){
+ if(!settled){settled=true;delete window.__apiCb[cbId];
+ resolve({error:'NativeFetch timeout (15s)',_debug_url:url});}
+ },16000);
+ window.__apiCb[cbId]=function(status,bodyStr){
+ if(settled)return;settled=true;clearTimeout(timer);
+ try{var d=JSON.parse(bodyStr);d._httpStatus=status;resolve(d)}
+ catch(e){resolve({error:'Parse error',status:status,_body:bodyStr?.substring(0,80)})}
  };
- xhr.onerror=function(){
- resolve({error:'XHR network error',_debug_url:url});
- };
- xhr.ontimeout=function(){
- resolve({error:'XHR timeout (10s)',_debug_url:url});
- };
- xhr.send();
+ try{
+ var hdrJson=JSON.stringify(headersObj||{});
+ var bodyJson=bodyObj?JSON.stringify(bodyObj):'';
+ window.AndroidApi.fetch(cbId,method,url,bodyJson,hdrJson);
+ }catch(e){
+ if(!settled){settled=true;clearTimeout(timer);
+ resolve({error:'AndroidApi.call failed: '+e.message,_debug_url:url});}
+ }
  });
 }
 
@@ -209,12 +200,12 @@ var fullUrl=url.startsWith('http')?url:API_BASE+url;
 var method=(opts.method||'GET').toUpperCase();
 var bodyObj=opts.body?JSON.parse(opts.body):null;
 
-// APK: Use XHR with shouldInterceptRequest proxy
-if(IS_APK){
+// APK: Use AndroidApi bridge with browser-like UA + Origin headers
+if(IS_APK&&window.AndroidApi){
  try{
  var hdrs={};
  if(token)hdrs['Authorization']='Bearer '+token;
- var data=await xhrPromise(method,fullUrl,bodyObj,hdrs);
+ var data=await nativeFetch(method,fullUrl,bodyObj,hdrs);
  IS_OFFLINE=false;
  saveCloudToLocal(url,data);
  return data;
@@ -852,32 +843,22 @@ updateUI();loadUser();
 // APK network diagnostic — test connectivity on startup
 if(IS_APK){
  setTimeout(async function(){
-  // Test 1: CF Worker GET (shouldInterceptRequest proxies this)
-  var xhr1=new XMLHttpRequest();
-  xhr1.open('GET','https://taxcalc-api.vichoo2020.workers.dev/api/health',true);
-  xhr1.timeout=8000;
-  xhr1.onload=function(){showDebug('CF-GET: OK '+xhr1.status+' ('+xhr1.responseText.length+'B)');};
-  xhr1.onerror=function(){showDebug('CF-GET: XHR ERROR');};
-  xhr1.ontimeout=function(){showDebug('CF-GET: TIMEOUT');};
-  xhr1.send();
+  // Test 1: CF Worker GET via AndroidApi
+  try{
+   var r1=await nativeFetch('GET','https://taxcalc-api.vichoo2020.workers.dev/api/health',null,{});
+   showDebug('CF-GET: '+(r1.ok?'OK '+r1.service:r1.error||'fail'));
+  }catch(e){showDebug('CF-GET: ERROR '+e.message);}
 
-  // Test 2: CF Worker POST via _body param proxy
-  var testBody=encodeURIComponent(JSON.stringify({username:'__diag__',password:'test1234'}));
-  var xhr2=new XMLHttpRequest();
-  xhr2.open('GET','https://taxcalc-api.vichoo2020.workers.dev/api/register?_body='+testBody,true);
-  xhr2.timeout=8000;
-  xhr2.onload=function(){showDebug('CF-POST: OK '+xhr2.status+' '+xhr2.responseText.substring(0,60));};
-  xhr2.onerror=function(){showDebug('CF-POST: XHR ERROR');};
-  xhr2.ontimeout=function(){showDebug('CF-POST: TIMEOUT');};
-  xhr2.send();
+  // Test 2: CF Worker POST via AndroidApi
+  try{
+   var r2=await nativeFetch('POST','https://taxcalc-api.vichoo2020.workers.dev/api/register',{username:'__diag2__',password:'test1234'},{});
+   showDebug('CF-POST: '+(r2.ok?'OK '+r2.username:r2.error||'fail'));
+  }catch(e){showDebug('CF-POST: ERROR '+e.message);}
 
   // Test 3: httpbin
-  var xhr3=new XMLHttpRequest();
-  xhr3.open('GET','https://httpbin.org/get',true);
-  xhr3.timeout=8000;
-  xhr3.onload=function(){showDebug('httpbin: OK');};
-  xhr3.onerror=function(){showDebug('httpbin: XHR ERROR');};
-  xhr3.ontimeout=function(){showDebug('httpbin: TIMEOUT');};
-  xhr3.send();
- },2000);
+  try{
+   var r3=await nativeFetch('GET','https://httpbin.org/get',null,{});
+   showDebug('httpbin: '+(r3.url?'OK':'fail'));
+  }catch(e){showDebug('httpbin: ERROR '+e.message);}
+ },3000);
 }
