@@ -179,14 +179,24 @@ opts.headers['Content-Type']='application/json';
 if(token)opts.headers['Authorization']='Bearer '+token;
 var fullUrl=url.startsWith('http')?url:API_BASE+url;
 var method=(opts.method||'GET').toLowerCase();
+var bodyObj=opts.body?JSON.parse(opts.body):null;
 
-// APK: use cordova-plugin-advanced-http (native, no CORS, instant)
+// Always do local first (instant), then sync to cloud in background
+var localResult=offlineApi(url,opts);
+
+// If we have local result, return it immediately + fire cloud sync
+if(localResult&&!localResult.error){
+ // Fire-and-forget cloud sync in background
+ syncToCloud(url,method,bodyObj);
+ return localResult;
+}
+
+// No local result — try cloud (APK native HTTP or web XHR)
 var nativeHttp=getNativeHttp();
 if(nativeHttp){
  return new Promise(function(resolve){
  var headers=Object.assign({'Content-Type':'application/json','Origin':'https://vicvv666.github.io','Accept':'application/json'},opts.headers);
  if(token)headers['Authorization']='Bearer '+token;
- var body=opts.body?JSON.parse(opts.body):{};
  var okFn=function(r){
  IS_OFFLINE=false;
  try{var d=typeof r.data==='string'?JSON.parse(r.data):r.data;resolve(d)}catch(e){resolve({error:'Parse error'})}
@@ -194,8 +204,8 @@ if(nativeHttp){
  var errFn=function(e){
  IS_OFFLINE=true;resolve(offlineApi(url,opts));
  };
- if(method==='post'){nativeHttp.post(fullUrl,body,headers,okFn,errFn)}
- else{nativeHttp.get(fullUrl,body,headers,okFn,errFn)}
+ if(method==='post'){nativeHttp.post(fullUrl,bodyObj||{},headers,okFn,errFn)}
+ else{nativeHttp.get(fullUrl,bodyObj||{},headers,okFn,errFn)}
  });
 }
 
@@ -208,7 +218,11 @@ return new Promise(function(resolve){
  xhr.timeout=5000;
  xhr.onload=function(){
  IS_OFFLINE=false;
- try{var data=JSON.parse(xhr.responseText);resolve(data)}
+ try{var data=JSON.parse(xhr.responseText);
+ // Save cloud data to local for next time
+ saveCloudToLocal(url,data);
+ resolve(data);
+ }
  catch(e){resolve({error:'Parse error',status:xhr.status})}
  };
  xhr.onerror=function(){
@@ -223,77 +237,88 @@ return new Promise(function(resolve){
 
 function offlineApi(url,opts){
  var body=opts.body?JSON.parse(opts.body):{};
- // Offline registration — save locally AND queue for sync
+ // Offline registration — save locally
  if(url==='/api/register'){
  var users=JSON.parse(localStorage.getItem('tcp_offline_users')||'{}');
  if(users[body.username])return{error:'Username already exists'};
  users[body.username]={password:body.password,membership:'free',expires_at:null};
  localStorage.setItem('tcp_offline_users',JSON.stringify(users));
- // Queue for cloud sync
- var queue=JSON.parse(localStorage.getItem('tcp_sync_queue')||'[]');
- queue.push({type:'register',username:body.username,password:body.password});
- localStorage.setItem('tcp_sync_queue',JSON.stringify(queue));
  var fakeToken=btoa(JSON.stringify({sub:Date.now(),username:body.username,exp:'2027-12-31T23:59:59'}));
  return{ok:true,token:fakeToken,user:{id:Date.now(),username:body.username,membership:'free',expires_at:null}};
  }
- // Offline login — check local first, then try cloud
+ // Offline login — check local first
  if(url==='/api/login'){
  var users=JSON.parse(localStorage.getItem('tcp_offline_users')||'{}');
  var u=users[body.username];
- if(!u||u.password!==body.password)return{error:'Invalid username or password'};
+ if(!u)return null; // Not found locally — try cloud
+ if(u.password!==body.password)return{error:'Invalid username or password'};
  var fakeToken=btoa(JSON.stringify({sub:Date.now(),username:body.username,exp:'2027-12-31T23:59:59'}));
  return{ok:true,token:fakeToken,user:{id:Date.now(),username:body.username,membership:u.membership,expires_at:u.expires_at}};
  }
  // Offline get user
  if(url==='/api/user'){
-  var stored=JSON.parse(localStorage.getItem('tcp_offline_user')||'null');
-  if(stored)return{ok:true,user:stored,payments:[],pricing:MEMBERSHIP_PRICING||{}};
-  return{error:'Not logged in'};
+ var stored=JSON.parse(localStorage.getItem('tcp_offline_user')||'null');
+ if(stored)return{ok:true,user:stored,payments:[],pricing:MEMBERSHIP_PRICING||{}};
+ return null; // Not found — try cloud
  }
  // Offline payment submit
  if(url==='/api/submit-payment')return{ok:true};
  if(url==='/api/payment-status')return{ok:true,payments:[]};
- return{error:'Network unavailable - offline mode'};
+ return null; // Unknown route — try cloud
 }
 
-// Sync offline users to cloud when back online
-async function syncOfflineUsers(){
-var queue=JSON.parse(localStorage.getItem('tcp_sync_queue')||'[]');
-if(!queue.length)return;
-var remaining=[];
-for(var i=0;i<queue.length;i++){
-var item=queue[i];
-if(item.type==='register'){
-try{
-var r=await fetch(API_BASE+'/api/register',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({username:item.username,password:item.password})
-});
-var data=await r.json();
-if(data.ok){
-var lr=await fetch(API_BASE+'/api/login',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({username:item.username,password:item.password})
-});
-var ld=await lr.json();
-if(ld.ok){
-token=ld.token;localStorage.setItem('tcp_token',token);
-user=ld.user;localStorage.setItem('tcp_offline_user',JSON.stringify(ld.user));
-updateUI();
+// Save cloud response to local for instant next access
+function saveCloudToLocal(url,data){
+ if(!data||!data.ok)return;
+ try{
+ if(url==='/api/register'||url==='/api/login'){
+ if(data.token){localStorage.setItem('tcp_token',data.token)}
+ if(data.user){
+ localStorage.setItem('tcp_offline_user',JSON.stringify(data.user));
+ var users=JSON.parse(localStorage.getItem('tcp_offline_users')||'{}');
+ users[data.user.username]={password:'_cloud_',membership:data.user.membership||'free',expires_at:data.user.expires_at||null};
+ localStorage.setItem('tcp_offline_users',JSON.stringify(users));
+ }
+ }
+ if(url==='/api/user'){
+ if(data.user)localStorage.setItem('tcp_offline_user',JSON.stringify(data.user));
+ }
+ }catch(e){}
 }
-continue;
+
+// Fire-and-forget cloud sync (background, non-blocking)
+function syncToCloud(url,method,bodyObj){
+ try{
+ var fullUrl=API_BASE+url;
+ var headers={'Content-Type':'application/json','Accept':'application/json'};
+ if(token)headers['Authorization']='Bearer '+token;
+ var nativeHttp=getNativeHttp();
+ if(nativeHttp){
+ // APK: native HTTP (no CORS issues)
+ var okFn=function(r){
+ IS_OFFLINE=false;
+ try{var d=typeof r.data==='string'?JSON.parse(r.data):r.data;saveCloudToLocal(url,d)}catch(e){}
+ };
+ var errFn=function(){};
+ if(method==='post'){nativeHttp.post(fullUrl,bodyObj||{},headers,okFn,errFn)}
+ else{nativeHttp.get(fullUrl,bodyObj||{},headers,okFn,errFn)}
+ }else{
+ // Web: XHR background sync
+ var xhr=new XMLHttpRequest();
+ xhr.open(method,fullUrl,true);
+ Object.keys(headers).forEach(function(k){try{xhr.setRequestHeader(k,headers[k])}catch(e){}});
+ xhr.timeout=4000;
+ xhr.onload=function(){
+ IS_OFFLINE=false;
+ try{saveCloudToLocal(url,JSON.parse(xhr.responseText))}catch(e){}
+ };
+ xhr.onerror=xhr.ontimeout=function(){};
+ xhr.send(bodyObj?JSON.stringify(bodyObj):null);
+ }
+ }catch(e){}
 }
-}catch(e){}
-}
-remaining.push(item);
-}
-if(remaining.length!==queue.length){
-localStorage.setItem('tcp_sync_queue',JSON.stringify(remaining));
-if(!remaining.length)toast('☁️ Cloud sync complete','ok');
-}
-}
+
+
 
 function MEMBERSHIP_PRICING(){return{free:{monthly_cny:0,monthly_usd:0},pro:{monthly_cny:19,monthly_usd:2.88}};}
 
