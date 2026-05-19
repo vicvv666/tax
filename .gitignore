@@ -1,3 +1,6 @@
-taxcalc.db
-__pycache__/
-*.pyc
+node_modules/
+android-project/.gradle/
+android-project/app/build/
+android-project/build/
+*.apk
+.vercel/

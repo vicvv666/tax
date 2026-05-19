@@ -324,7 +324,6 @@ async function doLogin(){
  if(!u||!p)return toast(t('needLogin'),'err');
  toast('⏳ Logging in...','ok');
  const r=await api('/api/login',{method:'POST',body:JSON.stringify({username:u,password:p})});
- if(IS_APK)showDebug('LOGIN result: '+JSON.stringify(r).substring(0,300));
  if(r.ok){token=r.token;localStorage.setItem('tcp_token',token);localStorage.setItem('tcp_cred',b64Enc(u+':'+p));user=r.user;localStorage.setItem('tcp_offline_user',JSON.stringify(r.user));closeModal('authModal');updateUI();toast(t('loginSuccess'),'ok');if(IS_OFFLINE)toast('📡 Offline mode','ok')}
  else toast(r.error||t('loginFail'),'err');
 }
@@ -333,16 +332,8 @@ async function doRegister(){
  if(!u||!p)return;
  toast('⏳ Registering...','ok');
  const r=await api('/api/register',{method:'POST',body:JSON.stringify({username:u,password:p})});
- if(IS_APK)showDebug('REG result: '+JSON.stringify(r).substring(0,300));
  if(r.ok){token=r.token;localStorage.setItem('tcp_token',token);localStorage.setItem('tcp_cred',b64Enc(u+':'+p));user=r.user;localStorage.setItem('tcp_offline_user',JSON.stringify(r.user));closeModal('authModal');updateUI();toast(t('registerSuccess'),'ok');if(IS_OFFLINE)toast('📡 Offline mode','ok')}
  else toast(r.error||t('registerFail'),'err');
-}
-// Debug overlay for APK — shows error details on screen
-function showDebug(msg){
- var el=document.getElementById('apk_debug');
- if(!el){el=document.createElement('div');el.id='apk_debug';el.style.cssText='position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.9);color:#0f0;font:11px monospace;padding:8px;z-index:99999;max-height:40vh;overflow:auto;white-space:pre-wrap;word-break:break-all;';document.body.appendChild(el);}
- var ts=new Date().toLocaleTimeString();
- el.innerHTML='['+ts+'] '+msg+'<br>'+el.innerHTML;
 }
 async function loadUser(){
   if(!token)return;
@@ -388,7 +379,10 @@ function calcMortgage(principal,ratePct,years){
 
 // ===== UI Rendering =====
 function updateUI(){
-  document.getElementById('brandName').textContent=t('brand');
+ document.getElementById('brandName').textContent=t('brand');
+ // Show hero cover on web (not APK)
+ var hero=document.getElementById('heroCover');
+ if(hero){hero.style.display=IS_APK?'none':'block';}
   const langLabels={en:'EN','zh-TW':'\u7e41','zh-CN':'\u7b80'};
   document.getElementById('langBtn').textContent='\ud83c\udf10 '+(langLabels[LANG]||'EN');
   // highlight active lang option
@@ -839,26 +833,3 @@ function toast(msg,cls){
 
 // ===== Init =====
 updateUI();loadUser();
-
-// APK network diagnostic — test connectivity on startup
-if(IS_APK){
- setTimeout(async function(){
-  // Test 1: Render proxy GET
-  try{
-   var r1=await nativeFetch('GET',API_BASE+'/api/health',null,{});
-   showDebug('API-GET: '+(r1.ok?'OK '+r1.service:r1.error||'fail'));
-  }catch(e){showDebug('API-GET: ERROR '+e.message);}
-
-  // Test 2: Render proxy POST
-  try{
-   var r2=await nativeFetch('POST',API_BASE+'/api/register',{username:'__diag3__',password:'test1234'},{});
-   showDebug('API-POST: '+(r2.ok?'OK user='+r2.username:r2.error||'fail'));
-  }catch(e){showDebug('API-POST: ERROR '+e.message);}
-
-  // Test 3: httpbin
-  try{
-   var r3=await nativeFetch('GET','https://httpbin.org/get',null,{});
-   showDebug('httpbin: '+(r3.url?'OK':'fail'));
-  }catch(e){showDebug('httpbin: ERROR '+e.message);}
- },3000);
-}
