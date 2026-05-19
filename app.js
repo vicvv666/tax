@@ -181,63 +181,50 @@ var fullUrl=url.startsWith('http')?url:API_BASE+url;
 var method=(opts.method||'GET').toLowerCase();
 var bodyObj=opts.body?JSON.parse(opts.body):null;
 
-// Always do local first (instant), then sync to cloud in background
-var localResult=offlineApi(url,opts);
-
-// If we have local result, return it immediately + fire cloud sync
-if(localResult&&!localResult.error){
- // Fire-and-forget cloud sync in background
- syncToCloud(url,method,bodyObj);
- return localResult;
-}
-
-// No local result — try cloud (APK native HTTP or web XHR)
+// Cloud-first: try CF Worker API, fallback to localStorage offline
 var nativeHttp=getNativeHttp();
 if(nativeHttp){
+ // APK: native HTTP (no CORS, faster)
  return new Promise(function(resolve){
- var headers=Object.assign({'Content-Type':'application/json','Origin':'https://vicvv666.github.io','Accept':'application/json'},opts.headers);
+ var headers=Object.assign({'Content-Type':'application/json','Accept':'application/json'},opts.headers);
  if(token)headers['Authorization']='Bearer '+token;
  var okFn=function(r){
  IS_OFFLINE=false;
- try{var d=typeof r.data==='string'?JSON.parse(r.data):r.data;resolve(d)}catch(e){resolve({error:'Parse error'})}
+ try{var d=typeof r.data==='string'?JSON.parse(r.data):r.data;
+ saveCloudToLocal(url,d);resolve(d);
+ }catch(e){resolve({error:'Parse error'})}
  };
  var errFn=function(e){
- IS_OFFLINE=true;resolve(offlineApi(url,opts));
+ IS_OFFLINE=true;
+ var local=offlineApiForce(url,opts);
+ resolve(local||{error:'Network unavailable'});
  };
  if(method==='post'){nativeHttp.post(fullUrl,bodyObj||{},headers,okFn,errFn)}
  else{nativeHttp.get(fullUrl,bodyObj||{},headers,okFn,errFn)}
  });
 }
 
-// Web: use XHR (with Origin header for CF Worker CORS)
-return new Promise(function(resolve){
- var xhr=new XMLHttpRequest();
- xhr.open(method,fullUrl,true);
- var hdrs=Object.assign({'Origin':'https://vicvv666.github.io'},opts.headers);
- Object.keys(hdrs).forEach(function(k){try{xhr.setRequestHeader(k,hdrs[k])}catch(e){}});
- xhr.timeout=5000;
- xhr.onload=function(){
+// Web: use fetch() for proper CORS + credentials
+try{
+ var fetchOpts={method:method.toUpperCase(),headers:{'Content-Type':'application/json','Accept':'application/json'}};
+ if(token)fetchOpts.headers['Authorization']='Bearer '+token;
+ if(bodyObj&&method!=='get')fetchOpts.body=JSON.stringify(bodyObj);
+ var resp=await fetch(fullUrl,fetchOpts);
  IS_OFFLINE=false;
- try{var data=JSON.parse(xhr.responseText);
- // Save cloud data to local for next time
+ var data=await resp.json();
  saveCloudToLocal(url,data);
- resolve(data);
- }
- catch(e){resolve({error:'Parse error',status:xhr.status})}
- };
- xhr.onerror=function(){
- IS_OFFLINE=true;resolve(offlineApi(url,opts));
- };
- xhr.ontimeout=function(){
- IS_OFFLINE=true;resolve(offlineApi(url,opts));
- };
- xhr.send(opts.body||null);
-});
+ return data;
+}catch(e){
+ // Cloud failed — fallback to local
+ IS_OFFLINE=true;
+ var local=offlineApiForce(url,opts);
+ return local||{error:'Network unavailable'};
+}
 }
 
-function offlineApi(url,opts){
+// Offline fallback — always returns a result, never null
+function offlineApiForce(url,opts){
  var body=opts.body?JSON.parse(opts.body):{};
- // Offline registration — save locally
  if(url==='/api/register'){
  var users=JSON.parse(localStorage.getItem('tcp_offline_users')||'{}');
  if(users[body.username])return{error:'Username already exists'};
@@ -246,25 +233,22 @@ function offlineApi(url,opts){
  var fakeToken=btoa(JSON.stringify({sub:Date.now(),username:body.username,exp:'2027-12-31T23:59:59'}));
  return{ok:true,token:fakeToken,user:{id:Date.now(),username:body.username,membership:'free',expires_at:null}};
  }
- // Offline login — check local first
  if(url==='/api/login'){
  var users=JSON.parse(localStorage.getItem('tcp_offline_users')||'{}');
  var u=users[body.username];
- if(!u)return null; // Not found locally — try cloud
+ if(!u)return{error:'Invalid username or password'};
  if(u.password!==body.password)return{error:'Invalid username or password'};
  var fakeToken=btoa(JSON.stringify({sub:Date.now(),username:body.username,exp:'2027-12-31T23:59:59'}));
  return{ok:true,token:fakeToken,user:{id:Date.now(),username:body.username,membership:u.membership,expires_at:u.expires_at}};
  }
- // Offline get user
  if(url==='/api/user'){
  var stored=JSON.parse(localStorage.getItem('tcp_offline_user')||'null');
  if(stored)return{ok:true,user:stored,payments:[],pricing:MEMBERSHIP_PRICING||{}};
- return null; // Not found — try cloud
+ return{error:'Not logged in'};
  }
- // Offline payment submit
  if(url==='/api/submit-payment')return{ok:true};
  if(url==='/api/payment-status')return{ok:true,payments:[]};
- return null; // Unknown route — try cloud
+ return{error:'Network unavailable - offline mode'};
 }
 
 // Save cloud response to local for instant next access
@@ -282,38 +266,6 @@ function saveCloudToLocal(url,data){
  }
  if(url==='/api/user'){
  if(data.user)localStorage.setItem('tcp_offline_user',JSON.stringify(data.user));
- }
- }catch(e){}
-}
-
-// Fire-and-forget cloud sync (background, non-blocking)
-function syncToCloud(url,method,bodyObj){
- try{
- var fullUrl=API_BASE+url;
- var headers={'Content-Type':'application/json','Accept':'application/json'};
- if(token)headers['Authorization']='Bearer '+token;
- var nativeHttp=getNativeHttp();
- if(nativeHttp){
- // APK: native HTTP (no CORS issues)
- var okFn=function(r){
- IS_OFFLINE=false;
- try{var d=typeof r.data==='string'?JSON.parse(r.data):r.data;saveCloudToLocal(url,d)}catch(e){}
- };
- var errFn=function(){};
- if(method==='post'){nativeHttp.post(fullUrl,bodyObj||{},headers,okFn,errFn)}
- else{nativeHttp.get(fullUrl,bodyObj||{},headers,okFn,errFn)}
- }else{
- // Web: XHR background sync
- var xhr=new XMLHttpRequest();
- xhr.open(method,fullUrl,true);
- Object.keys(headers).forEach(function(k){try{xhr.setRequestHeader(k,headers[k])}catch(e){}});
- xhr.timeout=4000;
- xhr.onload=function(){
- IS_OFFLINE=false;
- try{saveCloudToLocal(url,JSON.parse(xhr.responseText))}catch(e){}
- };
- xhr.onerror=xhr.ontimeout=function(){};
- xhr.send(bodyObj?JSON.stringify(bodyObj):null);
  }
  }catch(e){}
 }
