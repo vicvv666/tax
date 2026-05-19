@@ -164,35 +164,33 @@ var API_BASE=(function(){
 var IS_OFFLINE=false;
 var IS_APK=(location.protocol==='file:');
 
-// APK: Use NativeHttp bridge (Kotlin @JavascriptInterface) to bypass file:// CORS
+// APK: Use XMLHttpRequest (works with allowUniversalAccessFromFileURLs=true)
 // Web: Use fetch() normally
-window.__nativeHttpCb={};
-var _nativeCbId=0;
-function nativeHttpPromise(method,url,bodyObj,headersObj){
- return new Promise(function(resolve,reject){
- var cbId='cb_'+(++_nativeCbId);
- var settled=false;
- // Timeout: 8 seconds
- var timer=setTimeout(function(){
- if(!settled){settled=true;delete window.__nativeHttpCb[cbId];
- resolve({error:'NativeHttp timeout (8s)',_debug_url:url,_debug_method:method});}
- },8000);
- window.__nativeHttpCb[cbId]=function(status,bodyStr){
- if(settled)return;settled=true;clearTimeout(timer);
- try{var d=JSON.parse(bodyStr);d._httpStatus=status;resolve(d)}
- catch(e){resolve({error:'Parse error: '+e.message,status:status,_body:bodyStr?.substring(0,100)})}
+function xhrPromise(method,url,bodyObj,headersObj){
+ return new Promise(function(resolve){
+ var xhr=new XMLHttpRequest();
+ xhr.open(method,url,true);
+ xhr.setRequestHeader('Content-Type','application/json');
+ xhr.setRequestHeader('Accept','application/json');
+ if(headersObj){
+  var keys=Object.keys(headersObj);
+  for(var i=0;i<keys.length;i++){
+   if(keys[i]!=='Content-Type'&&keys[i]!=='Accept')xhr.setRequestHeader(keys[i],headersObj[keys[i]]);
+  }
+ }
+ xhr.timeout=10000;
+ xhr.onload=function(){
+  try{var d=JSON.parse(xhr.responseText);d._httpStatus=xhr.status;resolve(d)}
+  catch(e){resolve({error:'Parse error: '+e.message,status:xhr.status,_body:xhr.responseText?.substring(0,100)})}
  };
- var hdrJson=JSON.stringify(headersObj||{});
- try{
- if(method==='POST'){
- window.NativeHttp.post(cbId,url,JSON.stringify(bodyObj||{}),hdrJson);
- }else{
- window.NativeHttp.get(cbId,url,hdrJson);
- }
- }catch(e){
- if(!settled){settled=true;clearTimeout(timer);
- resolve({error:'NativeHttp.call failed: '+e.message,_debug_url:url});}
- }
+ xhr.onerror=function(){
+  resolve({error:'XHR network error',_debug_url:url});
+ };
+ xhr.ontimeout=function(){
+  resolve({error:'XHR timeout (10s)',_debug_url:url});
+ };
+ if(bodyObj&&method!=='GET')xhr.send(JSON.stringify(bodyObj));
+ else xhr.send();
  });
 }
 
@@ -204,32 +202,16 @@ var fullUrl=url.startsWith('http')?url:API_BASE+url;
 var method=(opts.method||'GET').toUpperCase();
 var bodyObj=opts.body?JSON.parse(opts.body):null;
 
-// APK: Use NativeHttp bridge (bypasses file:// CORS completely)
-if(IS_APK&&window.NativeHttp){
+// APK: Use XHR (allowUniversalAccessFromFileURLs=true bypasses CORS)
+if(IS_APK){
  try{
- var hdrs={'Content-Type':'application/json','Accept':'application/json'};
+ var hdrs={};
  if(token)hdrs['Authorization']='Bearer '+token;
- var data=await nativeHttpPromise(method,fullUrl,bodyObj,hdrs);
+ var data=await xhrPromise(method,fullUrl,bodyObj,hdrs);
  IS_OFFLINE=false;
  saveCloudToLocal(url,data);
  return data;
  }catch(e){
- IS_OFFLINE=true;
- return offlineApi(url,opts);
- }
-}
-// APK but no NativeHttp — try fetch with universal access
-if(IS_APK&&!window.NativeHttp){
- try{
- var fetchOpts2={method:method,headers:{'Content-Type':'application/json','Accept':'application/json'}};
- if(token)fetchOpts2.headers['Authorization']='Bearer '+token;
- if(bodyObj&&method!=='GET')fetchOpts2.body=JSON.stringify(bodyObj);
- const r2=await fetch(fullUrl,fetchOpts2);
- IS_OFFLINE=false;
- var data2=await r2.json();
- saveCloudToLocal(url,data2);
- return data2;
- }catch(e2){
  IS_OFFLINE=true;
  return offlineApi(url,opts);
  }
