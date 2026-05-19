@@ -169,18 +169,29 @@ var IS_APK=(location.protocol==='file:');
 window.__nativeHttpCb={};
 var _nativeCbId=0;
 function nativeHttpPromise(method,url,bodyObj,headersObj){
- return new Promise(function(resolve){
+ return new Promise(function(resolve,reject){
  var cbId='cb_'+(++_nativeCbId);
+ var settled=false;
+ // Timeout: 8 seconds
+ var timer=setTimeout(function(){
+ if(!settled){settled=true;delete window.__nativeHttpCb[cbId];
+ resolve({error:'NativeHttp timeout (8s)',_debug_url:url,_debug_method:method});}
+ },8000);
  window.__nativeHttpCb[cbId]=function(status,bodyStr){
- delete window.__nativeHttpCb[cbId];
- try{var d=JSON.parse(bodyStr);resolve(d)}
- catch(e){resolve({error:'Parse error',status:status})}
+ if(settled)return;settled=true;clearTimeout(timer);
+ try{var d=JSON.parse(bodyStr);d._httpStatus=status;resolve(d)}
+ catch(e){resolve({error:'Parse error: '+e.message,status:status,_body:bodyStr?.substring(0,100)})}
  };
  var hdrJson=JSON.stringify(headersObj||{});
+ try{
  if(method==='POST'){
  window.NativeHttp.post(cbId,url,JSON.stringify(bodyObj||{}),hdrJson);
  }else{
  window.NativeHttp.get(cbId,url,hdrJson);
+ }
+ }catch(e){
+ if(!settled){settled=true;clearTimeout(timer);
+ resolve({error:'NativeHttp.call failed: '+e.message,_debug_url:url});}
  }
  });
 }
@@ -203,6 +214,22 @@ if(IS_APK&&window.NativeHttp){
  saveCloudToLocal(url,data);
  return data;
  }catch(e){
+ IS_OFFLINE=true;
+ return offlineApi(url,opts);
+ }
+}
+// APK but no NativeHttp — try fetch with universal access
+if(IS_APK&&!window.NativeHttp){
+ try{
+ var fetchOpts2={method:method,headers:{'Content-Type':'application/json','Accept':'application/json'}};
+ if(token)fetchOpts2.headers['Authorization']='Bearer '+token;
+ if(bodyObj&&method!=='GET')fetchOpts2.body=JSON.stringify(bodyObj);
+ const r2=await fetch(fullUrl,fetchOpts2);
+ IS_OFFLINE=false;
+ var data2=await r2.json();
+ saveCloudToLocal(url,data2);
+ return data2;
+ }catch(e2){
  IS_OFFLINE=true;
  return offlineApi(url,opts);
  }
@@ -313,18 +340,29 @@ function MEMBERSHIP_PRICING(){return{free:{monthly_cny:0,monthly_usd:0},pro:{mon
 
 // ===== Auth =====
 async function doLogin(){
-  const u=document.getElementById('authUser').value.trim(),p=document.getElementById('authPass').value;
-  if(!u||!p)return toast(t('needLogin'),'err');
-  const r=await api('/api/login',{method:'POST',body:JSON.stringify({username:u,password:p})});
-  if(r.ok){token=r.token;localStorage.setItem('tcp_token',token);localStorage.setItem('tcp_cred',b64Enc(u+':'+p));user=r.user;localStorage.setItem('tcp_offline_user',JSON.stringify(r.user));closeModal('authModal');updateUI();toast(t('loginSuccess'),'ok');if(IS_OFFLINE)toast('📡 Offline mode','ok')}
-  else toast(r.error||t('loginFail'),'err');
+ const u=document.getElementById('authUser').value.trim(),p=document.getElementById('authPass').value;
+ if(!u||!p)return toast(t('needLogin'),'err');
+ toast('⏳ Logging in...','ok');
+ const r=await api('/api/login',{method:'POST',body:JSON.stringify({username:u,password:p})});
+ if(IS_APK)showDebug('LOGIN result: '+JSON.stringify(r).substring(0,300));
+ if(r.ok){token=r.token;localStorage.setItem('tcp_token',token);localStorage.setItem('tcp_cred',b64Enc(u+':'+p));user=r.user;localStorage.setItem('tcp_offline_user',JSON.stringify(r.user));closeModal('authModal');updateUI();toast(t('loginSuccess'),'ok');if(IS_OFFLINE)toast('📡 Offline mode','ok')}
+ else toast(r.error||t('loginFail'),'err');
 }
 async function doRegister(){
-  const u=document.getElementById('regUser').value.trim(),p=document.getElementById('regPass').value;
-  if(!u||!p)return;
-  const r=await api('/api/register',{method:'POST',body:JSON.stringify({username:u,password:p})});
-  if(r.ok){token=r.token;localStorage.setItem('tcp_token',token);localStorage.setItem('tcp_cred',b64Enc(u+':'+p));user=r.user;localStorage.setItem('tcp_offline_user',JSON.stringify(r.user));closeModal('authModal');updateUI();toast(t('registerSuccess'),'ok');if(IS_OFFLINE)toast('📡 Offline mode','ok')}
-  else toast(r.error||t('registerFail'),'err');
+ const u=document.getElementById('regUser').value.trim(),p=document.getElementById('regPass').value;
+ if(!u||!p)return;
+ toast('⏳ Registering...','ok');
+ const r=await api('/api/register',{method:'POST',body:JSON.stringify({username:u,password:p})});
+ if(IS_APK)showDebug('REG result: '+JSON.stringify(r).substring(0,300));
+ if(r.ok){token=r.token;localStorage.setItem('tcp_token',token);localStorage.setItem('tcp_cred',b64Enc(u+':'+p));user=r.user;localStorage.setItem('tcp_offline_user',JSON.stringify(r.user));closeModal('authModal');updateUI();toast(t('registerSuccess'),'ok');if(IS_OFFLINE)toast('📡 Offline mode','ok')}
+ else toast(r.error||t('registerFail'),'err');
+}
+// Debug overlay for APK — shows error details on screen
+function showDebug(msg){
+ var el=document.getElementById('apk_debug');
+ if(!el){el=document.createElement('div');el.id='apk_debug';el.style.cssText='position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.9);color:#0f0;font:11px monospace;padding:8px;z-index:99999;max-height:40vh;overflow:auto;white-space:pre-wrap;word-break:break-all;';document.body.appendChild(el);}
+ var ts=new Date().toLocaleTimeString();
+ el.innerHTML='['+ts+'] '+msg+'<br>'+el.innerHTML;
 }
 async function loadUser(){
   if(!token)return;
