@@ -164,33 +164,40 @@ var API_BASE=(function(){
 var IS_OFFLINE=false;
 var IS_APK=(location.protocol==='file:');
 
-// APK: Use XMLHttpRequest (works with allowUniversalAccessFromFileURLs=true)
+// APK: POST body goes into _body query param, Kotlin shouldInterceptRequest reads it and makes real POST
 // Web: Use fetch() normally
 function xhrPromise(method,url,bodyObj,headersObj){
  return new Promise(function(resolve){
  var xhr=new XMLHttpRequest();
- xhr.open(method,url,true);
+ // APK POST: encode body into URL _body param, send as GET (Kotlin intercepts & makes real POST)
+ var actualMethod=method;
+ var actualUrl=url;
+ if(IS_APK&&method==='POST'&&bodyObj){
+ var sep=url.indexOf('?')>=0?'&':'?';
+ actualUrl=url+sep+'_body='+encodeURIComponent(JSON.stringify(bodyObj));
+ actualMethod='GET';
+ }
+ xhr.open(actualMethod,actualUrl,true);
  xhr.setRequestHeader('Content-Type','application/json');
  xhr.setRequestHeader('Accept','application/json');
  if(headersObj){
-  var keys=Object.keys(headersObj);
-  for(var i=0;i<keys.length;i++){
-   if(keys[i]!=='Content-Type'&&keys[i]!=='Accept')xhr.setRequestHeader(keys[i],headersObj[keys[i]]);
-  }
+ var keys=Object.keys(headersObj);
+ for(var i=0;i<keys.length;i++){
+ if(keys[i]!=='Content-Type'&&keys[i]!=='Accept')xhr.setRequestHeader(keys[i],headersObj[keys[i]]);
+ }
  }
  xhr.timeout=10000;
  xhr.onload=function(){
-  try{var d=JSON.parse(xhr.responseText);d._httpStatus=xhr.status;resolve(d)}
-  catch(e){resolve({error:'Parse error: '+e.message,status:xhr.status,_body:xhr.responseText?.substring(0,100)})}
+ try{var d=JSON.parse(xhr.responseText);d._httpStatus=xhr.status;resolve(d)}
+ catch(e){resolve({error:'Parse error: '+e.message,status:xhr.status,_body:xhr.responseText?.substring(0,100)})}
  };
  xhr.onerror=function(){
-  resolve({error:'XHR network error',_debug_url:url});
+ resolve({error:'XHR network error',_debug_url:url});
  };
  xhr.ontimeout=function(){
-  resolve({error:'XHR timeout (10s)',_debug_url:url});
+ resolve({error:'XHR timeout (10s)',_debug_url:url});
  };
- if(bodyObj&&method!=='GET')xhr.send(JSON.stringify(bodyObj));
- else xhr.send();
+ xhr.send();
  });
 }
 
@@ -202,7 +209,7 @@ var fullUrl=url.startsWith('http')?url:API_BASE+url;
 var method=(opts.method||'GET').toUpperCase();
 var bodyObj=opts.body?JSON.parse(opts.body):null;
 
-// APK: Use XHR (allowUniversalAccessFromFileURLs=true bypasses CORS)
+// APK: Use XHR with shouldInterceptRequest proxy
 if(IS_APK){
  try{
  var hdrs={};
