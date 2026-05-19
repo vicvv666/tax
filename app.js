@@ -224,6 +224,25 @@ return offlineApi(url,opts);
 }
 }
 
+// Save cloud response to localStorage for offline access next time
+function saveCloudToLocal(url,data){
+if(!data||!data.ok)return;
+try{
+if(url==='/api/register'||url==='/api/login'){
+if(data.token)localStorage.setItem('tcp_token',data.token);
+if(data.user){
+localStorage.setItem('tcp_offline_user',JSON.stringify(data.user));
+var users=JSON.parse(localStorage.getItem('tcp_offline_users')||'{}');
+users[data.user.username]={password:'_cloud_',membership:data.user.membership||'free',expires_at:data.user.expires_at||null};
+localStorage.setItem('tcp_offline_users',JSON.stringify(users));
+}
+}
+if(url==='/api/user'){
+if(data.user)localStorage.setItem('tcp_offline_user',JSON.stringify(data.user));
+}
+}catch(e){}
+}
+
 function offlineApi(url,opts){
  var body=opts.body?JSON.parse(opts.body):{};
  // Register: MUST go to cloud — never allow local-only registration
