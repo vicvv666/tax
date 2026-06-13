@@ -34,6 +34,7 @@ footerTxt:'© 2026 税算寶 | Global Tax Calculator',contact:'Contact',privacy:
 cn:'China 🇨🇳',us:'United States 🇺🇸',uk:'United Kingdom 🇬🇧',au:'Australia 🇦🇺',ca:'Canada 🇨🇦',jp:'Japan 🇯🇵',hk:'Hong Kong 🇭🇰',
 currency:'Currency',deduction:'Deduction',taxableIncome:'Taxable Income',taxAmount:'Tax Amount',
 payPerUse:'Pay-per-use',onetime:'one-time',
+adminPanel:'Admin Panel',adminLogin:'Admin Login',adminKey:'Admin Key',adminDashboard:'Dashboard',adminUsers:'Users',adminPayments:'Payments',adminStats:'Statistics',adminActions:'Actions',totalUsers:'Total Users',proUsers:'Pro Users',freeUsers:'Free Users',totalPayments:'Total Payments',pendingPayments:'Pending',completedPayments:'Completed',totalRevenue:'Revenue',verifyPayment:'Verify',rejectPayment:'Reject',activatePro:'Activate Pro',revokePro:'Revoke Pro',deleteUser:'Delete User',confirmAction:'Confirm Action',confirmDeleteUser:'Delete this user and all their data?',confirmActivate:'Activate Pro for',confirmRevoke:'Revoke Pro for',confirmVerify:'Verify payment #',confirmReject:'Reject payment #',days:'days',noUsers:'No users found',noPayments:'No payments found',status:'Status',method:'Method',planType:'Plan',verifiedBy:'Verified By',username:'Username',membership:'Membership',expires:'Expires',created:'Created',amount:'Amount',currency:'Currency',userId:'User ID',refreshData:'Refresh',enterAdminKey:'Enter admin key',invalidAdminKey:'Invalid admin key',actionSuccess:'Action completed successfully',actionFailed:'Action failed'
 },
 "zh-TW":{
 brand:'稅算寶',tagline:'全球稅務計算器 — 智能、快速、準確',
@@ -67,7 +68,8 @@ discText:'本站所提供之稅務計算器、薪資單生成器等線上工具�
 footerTxt:'© 2026 稅算寶 | 全球稅務計算器',contact:'聯絡我們',privacy:'隱私條款',terms:'用戶協議',privacyTxt:'税算寶尊重您的隱私權。我們僅收集提供服務所需的最少資訊：使用者名稱與加密密碼用於身份驗證，計算記錄存儲於您的設備本地。我們不會出售、分享或轉讓您的個人資料給第三方。付款處理由第三方支付平台（支付寶、微信支付、PayPal）處理；我們不存儲您的付款憑證。我們使用 localStorage 在您的設備上保存偏好設定（語言、登入令牌）。您可隨時透過登出或清除瀏覽器資料來清除這些資訊。我們採用標準安全措施保護您的資料，但無法保證網路傳輸的絕對安全。我們可能會定期更新此政策；繼續使用即表示接受更改。聯絡：vichoo2020@gmail.com',termsTxt:'使用稅算寶即表示您同意以下條款：1. 所有稅務計算僅供參考，不構成官方稅務建議。結果基於公開稅率公式，可能無法反映您的實際納稅義務。2. 薪資單生成器僅供個人記錄使用。嚴禁偽造收入文件，違者可能承擔法律後果。3. Pro 會員費用一經啟用概不退款。4. 我們保留隨時修改功能、定價及這些條款的權利。更改在本站公佈後即生效。5. 我們對使用本工具造成的任何損失不承擔責任，包括但不限於計算錯誤、系統停機或資料丟失。6. 您不得對本應用程式進行反向工程、反編譯或重新分發。7. 這些條款受您居住地司法管轄區的法律管轄。聯絡：vichoo2020@gmail.com',
 cn:'中國 🇨🇳',us:'美國 🇺🇸',uk:'英國 🇬🇧',au:'澳洲 🇦🇺',ca:'加拿大 🇨🇦',jp:'日本 🇯🇵',hk:'香港 🇭🇰',
 currency:'貨幣',deduction:'免稅額',taxableIncome:'應稅所得',taxAmount:'應納稅額',
-payPerUse:'按次付費',onetime:'一次',
+onetime:'一次',
+adminPanel:'管理後台',adminLogin:'管理員登入',adminKey:'管理員金鑰',adminDashboard:'儀表板',adminUsers:'用戶',adminPayments:'付款',adminStats:'統計',adminActions:'操作',totalUsers:'總用戶',proUsers:'Pro 用戶',freeUsers:'Free 用戶',totalPayments:'付款記錄',pendingPayments:'待審核',completedPayments:'已完成',totalRevenue:'收入',verifyPayment:'確認',rejectPayment:'拒絕',activatePro:'啟用 Pro',revokePro:'撤銷 Pro',deleteUser:'刪除用戶',confirmAction:'確認操作',confirmDeleteUser:'確定刪除該用戶及所有數據？',confirmActivate:'啟用 Pro：',confirmRevoke:'撤銷 Pro：',confirmVerify:'確認付款 #',confirmReject:'拒絕付款 #',days:'天',noUsers:'暫無用戶',noPayments:'暫無付款',status:'狀態',method:'方式',planType:'方案',verifiedBy:'審核人',username:'用戶名',membership:'會員',expires:'到期',created:'創建',amount:'金額',currency:'幣種',userId:'用戶 ID',refreshData:'刷新',enterAdminKey:'輸入管理員金鑰',invalidAdminKey:'金鑰錯誤',actionSuccess:'操作成功',actionFailed:'操作失敗',revenueCny:'人民幣收入',revenueUsd:'美元收入'
 },
 "zh-CN":{
 brand:'税算寶',tagline:'全球税务计算器 — 智能、快速、准确',
@@ -102,6 +104,7 @@ footerTxt:'© 2026 税算寶 | 全球税务计算器',contact:'联系我们',pri
 cn:'中国 🇨🇳',us:'美国 🇺🇸',uk:'英国 🇬🇧',au:'澳洲 🇦🇺',ca:'加拿大 🇨🇦',jp:'日本 🇯🇵',hk:'香港 🇭🇰',
 currency:'货币',deduction:'免税额',taxableIncome:'应税所得',taxAmount:'应纳税额',
 payPerUse:'按次付费',onetime:'一次',
+adminPanel:'管理后台',adminLogin:'管理员登录',adminKey:'管理员密钥',adminDashboard:'仪表板',adminUsers:'用户',adminPayments:'付款',adminStats:'统计',adminActions:'操作',totalUsers:'总用户',proUsers:'Pro 用户',freeUsers:'Free 用户',totalPayments:'付款记录',pendingPayments:'待审核',completedPayments:'已完成',totalRevenue:'收入',verifyPayment:'确认',rejectPayment:'拒绝',activatePro:'启用 Pro',revokePro:'撤销 Pro',deleteUser:'删除用户',confirmAction:'确认操作',confirmDeleteUser:'确定删除该用户及所有数据？',confirmActivate:'启用 Pro：',confirmRevoke:'撤销 Pro：',confirmVerify:'确认付款 #',confirmReject:'拒绝付款 #',days:'天',noUsers:'暂无用户',noPayments:'暂无付款',status:'状态',method:'方式',planType:'方案',verifiedBy:'审核人',username:'用户名',membership:'会员',expires:'到期',created:'创建',amount:'金额',currency:'币种',userId:'用户 ID',refreshData:'刷新',enterAdminKey:'输入管理员密钥',invalidAdminKey:'密钥错误',actionSuccess:'操作成功',actionFailed:'操作失败',revenueCny:'人民币收入',revenueUsd:'美元收入'
 }
 };
 
@@ -110,7 +113,7 @@ function t(k){return(I18N[LANG]||I18N.en)[k]||I18N.en[k]||k}
 
 // ===== Tax Data (2024-2025) =====
 const TAX={
-CN:{name:'cn',cur:'\u00a5',curCode:'CNY',ded:60000,
+CN:{name:'cn',cur:'¥',curCode:'CNY',ded:60000,
   brackets:[36000,144000,300000,420000,660000,960000],
   rates:[3,10,20,25,30,35,45],
   vat:[{r:13,l:'13%'},{r:9,l:'9%'},{r:6,l:'6%'},{r:3,l:'3%'},{r:1,l:'1%'}],
@@ -135,7 +138,7 @@ CA:{name:'ca',cur:'C$',curCode:'CAD',ded:15705,
   rates:[15,20.5,26,29,33],
   vat:[{r:5,l:'5% GST'},{r:13,l:'13% HST (ON)'},{r:15,l:'15% HST (Atlantic)'}],
   fundMax:0,fundRates:{emp:0,corp:0}},
-JP:{name:'jp',cur:'\u00a5',curCode:'JPY',ded:480000,
+JP:{name:'jp',cur:'¥',curCode:'JPY',ded:480000,
   brackets:[1950000,3300000,6950000,9000000,18000000,40000000],
   rates:[5,10,20,23,33,40,45],
  vat:[{r:10,l:'10% Standard'},{r:8,l:'8% Reduced'}],
@@ -154,7 +157,7 @@ let payrollRows=[],history=JSON.parse(localStorage.getItem('tcp_hist')||'[]');
 // ===== API =====
 var API_BASE=(function(){
  if(location.protocol==='file:'||location.hostname===''){
- return'https://taxcalc-proxy.onrender.com';
+ return'https://tax.vic999.com';
  }
  if(location.hostname.endsWith('github.io')){
  return'https://taxcalc-api.vichoo2020.workers.dev';
@@ -285,19 +288,15 @@ for(var i=0;i<queue.length;i++){
 var item=queue[i];
 if(item.type==='register'){
 try{
-var r=await fetch(API_BASE+'/api/register',{
+var data=await api('/api/register',{
 method:'POST',
-headers:{'Content-Type':'application/json'},
 body:JSON.stringify({username:item.username,password:item.password})
 });
-var data=await r.json();
 if(data.ok){
-var lr=await fetch(API_BASE+'/api/login',{
+var ld=await api('/api/login',{
 method:'POST',
-headers:{'Content-Type':'application/json'},
 body:JSON.stringify({username:item.username,password:item.password})
 });
-var ld=await lr.json();
 if(ld.ok){
 token=ld.token;localStorage.setItem('tcp_token',token);
 user=ld.user;localStorage.setItem('tcp_offline_user',JSON.stringify(ld.user));
@@ -583,12 +582,12 @@ function doCalcFund(){
   const mx=parseFloat(document.getElementById('fundMax').value)||31884;
   const base=Math.min(s,mx);const emp=base*er/100;const corp=base*cr/100;
   document.getElementById('fundResult').innerHTML='<div class="result">'+
-  '<div class="r-big"><div class="num">\u00a5'+fmt(emp+corp)+'<\/div><div class="lbl">Monthly Total<\/div><\/div>'+
-  '<div class="r-row"><span class="r-lbl">Base<\/span><span class="r-val">\u00a5'+fmt(base)+'<\/span><\/div>'+
-  '<div class="r-row"><span class="r-lbl">'+t('empRate')+' ('+er+'%)<\/span><span class="r-val" style="color:var(--danger)">-\u00a5'+fmt(emp)+'<\/span><\/div>'+
-  '<div class="r-row"><span class="r-lbl">'+t('corpRate')+' ('+cr+'%)<\/span><span class="r-val" style="color:var(--sec)">+\u00a5'+fmt(corp)+'<\/span><\/div>'+
+  '<div class="r-big"><div class="num">¥'+fmt(emp+corp)+'<\/div><div class="lbl">Monthly Total<\/div><\/div>'+
+  '<div class="r-row"><span class="r-lbl">Base<\/span><span class="r-val">¥'+fmt(base)+'<\/span><\/div>'+
+  '<div class="r-row"><span class="r-lbl">'+t('empRate')+' ('+er+'%)<\/span><span class="r-val" style="color:var(--danger)">-¥'+fmt(emp)+'<\/span><\/div>'+
+  '<div class="r-row"><span class="r-lbl">'+t('corpRate')+' ('+cr+'%)<\/span><span class="r-val" style="color:var(--sec)">+¥'+fmt(corp)+'<\/span><\/div>'+
   '<\/div>';
-  saveHistory('Housing Fund','\u00a5'+fmt(s));
+  saveHistory('Housing Fund','¥'+fmt(s));
 }
 
 function renderCompare(app){
@@ -683,6 +682,7 @@ function showUserModal(){
  document.getElementById('authLogin').innerHTML=
  '<p style="margin:12px 0">'+t('username')+': <b>'+user.username+'<\/b> ('+t(m)+')<\/p>'+
  (m==='free'?'<button class="btn btn-pri" style="width:100%;margin:8px 0" onclick="closeModal(\'authModal\');showUpgrade()">\u2b06\ufe0f '+t('upgrade')+'<\/button>':'')+
+ '<button class="btn btn-ghost" style="width:100%;margin:4px 0;color:var(--acc);border-color:var(--acc)" onclick="closeModal(\'authModal\');showAdmin()">🛡️ '+t('adminPanel')+'<\/button>'+
  '<button class="btn btn-ghost" style="width:100%;color:var(--err);border-color:var(--err)" onclick="doLogout()">\ud83d\udeaa '+t('logout')+'<\/button>';
  document.getElementById('authLogin').style.display='block';
  document.getElementById('authRegister').style.display='none';
@@ -707,9 +707,9 @@ function renderPaymentModal(){
  // Plan type - big prominent buttons
  html+='<div style="display:flex;gap:12px;margin-bottom:20px">';
  html+='<button id="planTabMonthly" onclick="switchPlanTab(\'monthly\')" style="flex:1;padding:18px 10px;font-size:22px;font-weight:900;border-radius:16px;border:2px solid var(--pri);background:var(--pri-dim);color:var(--pri);cursor:pointer;transition:all .25s;line-height:1.3">';
- html+='<div>'+t('monthly')+'<\/div><div style="font-size:28px;margin-top:4px">\u00a519<\/div><div style="font-size:12px;font-weight:500;color:var(--dim)">\/'+t('month')+'<\/div><\/button>';
+ html+='<div>'+t('monthly')+'<\/div><div style="font-size:28px;margin-top:4px">¥19<\/div><div style="font-size:12px;font-weight:500;color:var(--dim)">\/'+t('month')+'<\/div><\/button>';
  html+='<button id="planTabPerUse" onclick="switchPlanTab(\'per_use\')" style="flex:1;padding:18px 10px;font-size:22px;font-weight:900;border-radius:16px;border:2px solid var(--border);background:transparent;color:var(--dim);cursor:pointer;transition:all .25s;line-height:1.3">';
- html+='<div>'+t('perUse')+'<\/div><div style="font-size:28px;margin-top:4px">\u00a51<\/div><div style="font-size:12px;font-weight:500;color:var(--dim)">\/'+t('time')+'<\/div><\/button>';
+ html+='<div>'+t('perUse')+'<\/div><div style="font-size:28px;margin-top:4px">¥1<\/div><div style="font-size:12px;font-weight:500;color:var(--dim)">\/'+t('time')+'<\/div><\/button>';
  html+='<\/div>';
  // Pay method
  html+='<div style="display:flex;gap:10px;margin-bottom:18px">';
@@ -760,7 +760,7 @@ function updatePayAmount(){
   label.textContent=curPlanType==='monthly'?'$2.88':'$0.15';
   mLabel.textContent='PayPal QR Payment';
  } else {
-  label.textContent=curPlanType==='monthly'?'\u00a519':'\u00a51';
+  label.textContent=curPlanType==='monthly'?'¥19':'¥1';
   var names={alipay:'\u652f\u4ed8\u5b9d',wechat:'\u5fae\u4fe1'};
   mLabel.textContent=(names[curPayMethod]||'')+'\u626b\u7801\u4ed8\u6b3e';
  }
@@ -823,6 +823,233 @@ function renderFooter(){
 function toggleDisc(){toggleModal('discModal')}
 function togglePrivacy(){toggleModal('privacyModal')}
 function toggleTerms(){toggleModal('termsModal')}
+
+// ===== Admin Panel =====
+var _adminKey='';
+var _adminTab='dashboard';
+
+function showAdmin(){
+ _adminKey=localStorage.getItem('tcp_admin_key')||'';
+ _adminTab='dashboard';
+ if(_adminKey){
+  renderAdminPanel();
+ } else {
+  renderAdminLogin();
+ }
+ openModal('adminModal');
+}
+
+function renderAdminLogin(){
+ var ac=document.getElementById('adminContent');
+ if(!ac)return;
+ ac.innerHTML=
+  '<div style="text-align:center;padding:20px 0">'+
+  '<div style="font-size:48px;margin-bottom:12px">🔐</div>'+
+  '<h4 style="color:var(--dim);margin-bottom:16px">'+t('adminLogin')+'</h4>'+
+  '<div class="fg" style="max-width:300px;margin:0 auto">'+
+  '<input id="admKeyInput" type="password" placeholder="'+t('adminKey')+'" style="text-align:center;font-size:18px;letter-spacing:4px" onkeydown="if(event.key===\'Enter\')adminVerify()">'+
+  '</div>'+
+  '<button class="btn btn-pri" style="margin-top:16px;padding:12px 40px" onclick="adminVerify()">🔑 '+t('login')+'</button>'+
+  '</div>';
+}
+
+async function adminVerify(){
+ var ki=document.getElementById('admKeyInput');
+ if(!ki)return;
+ var key=ki.value.trim();
+ if(!key)return toast(t('invalidAdminKey'),'err');
+ _adminKey=key; // Set key first so adminApi header works
+ try{
+  var r=await adminApi('/api/admin/stats');
+  if(r.ok&&r.stats){
+   localStorage.setItem('tcp_admin_key',key);
+   renderAdminPanel();
+  } else {
+   _adminKey=''; // Reset on failure
+   toast(t('invalidAdminKey'),'err');
+  }
+ }catch(e){
+  _adminKey=''; // Reset on error
+  toast(t('error'),'err');
+ }
+}
+
+function adminHeaders(){
+ return {'X-Admin-Key':_adminKey};
+}
+
+async function adminApi(url,opts){
+ opts=opts||{};
+ if(!opts.headers)opts.headers={};
+ opts.headers['X-Admin-Key']=_adminKey;
+ opts.headers['Content-Type']='application/json';
+ var fullUrl=url.startsWith('http')?url:API_BASE+url;
+ var method=(opts.method||'GET').toUpperCase();
+ var bodyObj=opts.body?JSON.parse(opts.body):null;
+ // APK: Use AndroidApi bridge
+ if(IS_APK&&window.AndroidApi){
+  try{
+   var data=await nativeFetch(method,fullUrl,bodyObj,opts.headers);
+   return data;
+  }catch(e){return {ok:false,error:e.message};}
+ }
+ // Web: Use fetch()
+ try{
+  var fetchOpts={method:method,headers:opts.headers};
+  if(bodyObj&&method!=='GET')fetchOpts.body=JSON.stringify(bodyObj);
+  var r=await fetch(fullUrl,fetchOpts);
+  return await r.json();
+ }catch(e){return {ok:false,error:e.message};}
+}
+
+function renderAdminPanel(){
+ var ac=document.getElementById('adminContent');
+ if(!ac)return;
+ var tabs=['dashboard','users','payments'];
+ var tabHtml='<div style="display:flex;gap:6px;margin-bottom:16px;overflow-x:auto">';
+ tabs.forEach(function(tb){
+  var active=tb===_adminTab;
+  tabHtml+='<button onclick="switchAdminTab(\''+tb+'\')" style="padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;white-space:nowrap;border:1px solid '+(active?'var(--pri)':'var(--border)')+';background:'+(active?'var(--pri-dim)':'transparent')+';color:'+(active?'var(--pri)':'var(--dim)')+';cursor:pointer;transition:all .2s">'+t('admin'+tb.charAt(0).toUpperCase()+tb.slice(1))+'</button>';
+ });
+ tabHtml+='</div>';
+ tabHtml+='<div id="adminTabContent" style="min-height:200px"><div style="text-align:center;color:var(--dim);padding:40px">⏳ Loading...</div></div>';
+ tabHtml+='<div style="margin-top:12px;text-align:right"><button class="btn btn-ghost" style="font-size:12px;padding:6px 12px" onclick="adminLogout()">🔐 '+t('logout')+'</button></div>';
+ ac.innerHTML=tabHtml;
+ document.getElementById('adminTitle').textContent='🛡️ '+t('adminPanel');
+ loadAdminTab();
+}
+
+function switchAdminTab(tb){
+ _adminTab=tb;
+ renderAdminPanel();
+}
+
+function adminLogout(){
+ _adminKey='';
+ localStorage.removeItem('tcp_admin_key');
+ renderAdminLogin();
+}
+
+async function loadAdminTab(){
+ var el=document.getElementById('adminTabContent');
+ if(!el)return;
+ if(_adminTab==='dashboard') await loadAdminDashboard(el);
+ else if(_adminTab==='users') await loadAdminUsers(el);
+ else if(_adminTab==='payments') await loadAdminPayments(el);
+}
+
+async function loadAdminDashboard(el){
+ var r=await adminApi('/api/admin/stats');
+ if(!r.ok){el.innerHTML='<p style="color:var(--err)">'+(r.error||t('error'))+'</p>';return;}
+ var s=r.stats;
+ var cards=[
+  {label:t('totalUsers'),val:s.total_users,icon:'👥',color:'var(--pri)'},
+  {label:t('proUsers'),val:s.pro_users,icon:'⭐',color:'var(--acc)'},
+  {label:t('freeUsers'),val:s.free_users,icon:'👤',color:'var(--dim)'},
+  {label:t('totalPayments'),val:s.total_payments,icon:'💳',color:'var(--pri)'},
+  {label:t('pendingPayments'),val:s.pending_payments,icon:'⏳',color:'var(--warn)'},
+  {label:t('completedPayments'),val:s.completed_payments,icon:'✅',color:'var(--ok)'},
+  {label:t('totalRevenue')+' (CNY)',val:'¥'+s.total_revenue_cny,icon:'💰',color:'var(--warn)'},
+  {label:t('totalRevenue')+' (USD)',val:'$'+s.total_revenue_usd,icon:'💰',color:'var(--warn)'}
+ ];
+ var html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+ cards.forEach(function(c){
+  html+='<div class="result-item" style="padding:14px">'+
+  '<div class="label">'+c.icon+' '+c.label+'</div>'+
+  '<div class="value" style="color:'+c.color+';font-size:22px">'+c.val+'</div></div>';
+ });
+ html+='</div>';
+ html+='<div style="margin-top:16px;text-align:center"><button class="btn btn-ghost" onclick="loadAdminTab()" style="font-size:13px">🔄 '+t('refreshData')+'</button></div>';
+ el.innerHTML=html;
+}
+
+async function loadAdminUsers(el){
+ var page=1;
+ var r=await adminApi('/api/admin/users?page='+page+'&per_page=50');
+ if(!r.ok){el.innerHTML='<p style="color:var(--err)">'+(r.error||t('error'))+'</p>';return;}
+ var users=r.users||[];
+ var html='<div style="overflow-x:auto">';
+ if(users.length===0){
+  html+='<p style="text-align:center;color:var(--dim);padding:20px">'+t('noUsers')+'</p>';
+ } else {
+  html+='<table class="ptbl"><tr><th>ID</th><th>'+t('username')+'</th><th>'+t('membership')+'</th><th>'+t('expires')+'</th><th>'+t('created')+'</th><th>'+t('adminActions')+'</th></tr>';
+  users.forEach(function(u){
+   var isPro=u.membership==='pro';
+   var badge=isPro?'<span class="badge badge-pro">Pro</span>':'<span class="badge badge-free">Free</span>';
+   html+='<tr><td>'+u.id+'</td><td style="font-weight:700">'+u.username+'</td><td>'+badge+'</td><td style="font-size:12px;color:var(--dim)">'+(u.expires_at||'-')+'</td><td style="font-size:12px;color:var(--dim)">'+(u.created_at||'')+'</td><td>';
+   if(isPro){
+    html+='<button class="btn btn-ghost" style="padding:4px 8px;font-size:11px;color:var(--err);border-color:var(--err)" onclick="adminRevokePro('+u.id+',\''+u.username+'\')">'+t('revokePro')+'</button> ';
+   } else {
+    html+='<button class="btn btn-pri" style="padding:4px 8px;font-size:11px" onclick="adminActivatePro('+u.id+',\''+u.username+'\')">'+t('activatePro')+'</button> ';
+   }
+   html+='<button class="btn btn-dan" style="padding:4px 8px;font-size:11px" onclick="adminDeleteUser('+u.id+',\''+u.username+'\')">🗑️</button>';
+   html+='</td></tr>';
+  });
+  html+='</table>';
+ }
+ html+='</div>';
+ html+='<div style="margin-top:12px;text-align:center"><button class="btn btn-ghost" onclick="loadAdminTab()" style="font-size:13px">🔄 '+t('refreshData')+'</button></div>';
+ el.innerHTML=html;
+}
+
+async function loadAdminPayments(el){
+ var r=await adminApi('/api/admin/payments?per_page=50');
+ if(!r.ok){el.innerHTML='<p style="color:var(--err)">'+(r.error||t('error'))+'</p>';return;}
+ var payments=r.payments||[];
+ var html='<div style="overflow-x:auto">';
+ if(payments.length===0){
+  html+='<p style="text-align:center;color:var(--dim);padding:20px">'+t('noPayments')+'</p>';
+ } else {
+  html+='<table class="ptbl"><tr><th>ID</th><th>'+t('userId')+'</th><th>'+t('username')+'</th><th>'+t('amount')+'</th><th>'+t('currency')+'</th><th>'+t('status')+'</th><th>'+t('method')+'</th><th>'+t('planType')+'</th><th>'+t('created')+'</th><th>'+t('adminActions')+'</th></tr>';
+  payments.forEach(function(p){
+   var statusBadge=p.status==='completed'?'<span class="badge badge-pro">✅</span>':
+    p.status==='pending'?'<span class="badge" style="background:rgba(245,158,11,.15);color:var(--warn)">⏳</span>':
+    '<span class="badge" style="background:rgba(239,68,68,.15);color:var(--err)">❌</span>';
+   html+='<tr><td>'+p.id+'</td><td>'+p.user_id+'</td><td style="font-weight:700">'+p.username+'</td><td>'+(p.currency==='cny'?'¥':'$')+p.amount+'</td><td>'+p.currency.toUpperCase()+'</td><td>'+statusBadge+'</td><td>'+p.payment_method+'</td><td>'+p.plan_type+'</td><td style="font-size:11px;color:var(--dim)">'+(p.created_at||'')+'</td><td>';
+   if(p.status==='pending'){
+    html+='<button class="btn btn-pri" style="padding:4px 8px;font-size:11px" onclick="adminVerifyPayment('+p.id+')">✅ '+t('verifyPayment')+'</button> ';
+    html+='<button class="btn btn-dan" style="padding:4px 8px;font-size:11px" onclick="adminRejectPayment('+p.id+')">❌ '+t('rejectPayment')+'</button>';
+   } else {
+    html+='<span style="font-size:11px;color:var(--dim)">'+(p.verified_by||'')+' '+(p.verified_at||'')+'</span>';
+   }
+   html+='</td></tr>';
+  });
+  html+='</table>';
+ }
+ html+='</div>';
+ html+='<div style="margin-top:12px;text-align:center"><button class="btn btn-ghost" onclick="loadAdminTab()" style="font-size:13px">🔄 '+t('refreshData')+'</button></div>';
+ el.innerHTML=html;
+}
+
+async function adminActivatePro(uid,uname){
+ if(!confirm(t('confirmActivate')+' '+uname+'? ('+t('days')+': 30)'))return;
+ var r=await adminApi('/api/admin/activate-user',{method:'POST',body:JSON.stringify({user_id:uid,days:30})});
+ if(r.ok){toast(t('actionSuccess'),'ok');loadAdminTab();}else{toast(r.error||t('actionFailed'),'err');}
+}
+
+async function adminRevokePro(uid,uname){
+ if(!confirm(t('confirmRevoke')+' '+uname+'?'))return;
+ var r=await adminApi('/api/admin/revoke-pro',{method:'POST',body:JSON.stringify({user_id:uid})});
+ if(r.ok){toast(t('actionSuccess'),'ok');loadAdminTab();}else{toast(r.error||t('actionFailed'),'err');}
+}
+
+async function adminDeleteUser(uid,uname){
+ if(!confirm(t('confirmDeleteUser').replace('{user}',uname)))return;
+ var r=await adminApi('/api/admin/delete-user',{method:'POST',body:JSON.stringify({user_id:uid})});
+ if(r.ok){toast(t('actionSuccess'),'ok');loadAdminTab();}else{toast(r.error||t('actionFailed'),'err');}
+}
+
+async function adminVerifyPayment(pid){
+ if(!confirm(t('confirmVerify')+pid+'?'))return;
+ var r=await adminApi('/api/verify-payment/'+pid,{method:'POST'});
+ if(r.ok){toast(t('actionSuccess'),'ok');loadAdminTab();}else{toast(r.error||t('actionFailed'),'err');}
+}
+
+async function adminRejectPayment(pid){
+ if(!confirm(t('confirmReject')+pid+'?'))return;
+ var r=await adminApi('/api/admin/reject-payment/'+pid,{method:'POST',body:JSON.stringify({payment_id:pid})});
+ if(r.ok){toast(t('actionSuccess'),'ok');loadAdminTab();}else{toast(r.error||t('actionFailed'),'err');}
+}
 
 // ===== Toast =====
 function toast(msg,cls){
