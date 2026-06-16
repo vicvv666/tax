@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
@@ -121,14 +121,34 @@ tr:last-child td{border-bottom:0}
 .r-big{font-size:24px;font-weight:900;color:var(--pri)}
 .lbl{font-size:12px;color:var(--dim)}
 .num{font-weight:700;color:var(--txt)}
+
+/* === Refactored inline styles === */
+.hdr-actions{display:flex;gap:8px;align-items:center}
+.dl-btn-variant{background:var(--pri-dim);border-color:rgba(16,185,129,.3);color:var(--pri);font-weight:700}
+.auth-btn-variant{color:var(--pri);border-color:rgba(16,185,129,.3)}
+.hero-section{max-width:960px;margin:0 auto;padding:20px 16px 0;text-align:center}
+.hero-section img{width:100%;max-width:480px;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.hero-dl-area{margin-top:12px}
+.hero-dl-link{display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:700;font-size:16px;border-radius:12px;text-decoration:none;box-shadow:0 2px 12px rgba(16,185,129,.4)}
+.footer .email-link{color:var(--acc)}
+.btn-block{width:100%}
+.btn-block-mb{width:100%;margin-bottom:10px}
+.btn-block-mt10{width:100%;margin-top:10px}
+.btn-block-mt12{width:100%;margin-top:12px}
+.text-center-mb{text-align:center;margin-bottom:8px}
+.text-center-mb .btnGhost{font-size:13px}
+.legal-text{font-size:13px;line-height:1.8;color:var(--dim)}
+.legal-heading{color:var(--acc)}
+.modal-narrow{max-width:520px}
+.auth-register-hidden{display:none}
 </style>
 </head>
 <body>
 
 <header class="header"><div class="header-in">
 <div class="logo" role="banner">🧮 <span id="brandName"></span></div>
-<div style="display:flex;gap:8px;align-items:center">
-<button class="hdr-btn" id="dlBtn" onclick="window.open('https://tax.vic999.com/download/taxcalc-pro.apk','_blank')" style="background:var(--pri-dim);border-color:rgba(16,185,129,.3);color:var(--pri);font-weight:700" aria-label="Download APK">📥 <span id="dlBtnText">APK</span></button>
+<div class="hdr-actions">
+<button class="hdr-btn" id="dlBtn" onclick="window.open('https://tax.vic999.com/download/taxcalc-pro.apk','_blank')" class="dl-btn-variant" aria-label="Download APK">📥 <span id="dlBtnText">APK</span></button>
 <div class="lang-dropdown">
 <button class="hdr-btn" id="langBtn" onclick="toggleLangDropdown()" aria-label="Change language">🌐</button>
 <div class="lang-menu" id="langMenu" role="menu">
@@ -137,15 +157,15 @@ tr:last-child td{border-bottom:0}
 <button onclick="setLang('zh-CN')" role="menuitem">简体中文</button>
 </div>
 </div>
-<button class="hdr-btn" id="authBtn" onclick="showAuth()" style="color:var(--pri);border-color:rgba(16,185,129,.3)">👤</button>
+<button class="hdr-btn" id="authBtn" onclick="showAuth()" class="auth-btn-variant">👤</button>
 </div>
 </div></header>
 
 <!-- Hero Cover -->
-<div id="heroCover" style="max-width:960px;margin:0 auto;padding:20px 16px 0;text-align:center;display:none">
-<img src="cover.png" alt="税算寶" style="width:100%;max-width:480px;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.4)">
-<div style="margin-top:12px">
-<a id="heroDlBtn" href="https://tax.vic999.com/download/taxcalc-pro.apk" download style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:700;font-size:16px;border-radius:12px;text-decoration:none;box-shadow:0 2px 12px rgba(16,185,129,.4)">📥 下载 APK</a>
+<div id="heroCover" class="hero-section" class="auth-register-hidden">
+<img src="cover.png" alt="税算寶" class="hero-cover-img">
+<div class="hero-dl-area">
+<a id="heroDlBtn" href="https://tax.vic999.com/download/taxcalc-pro.apk" download class="hero-dl-link">📥 下载 APK</a>
 </div>
 </div>
 
@@ -154,7 +174,7 @@ tr:last-child td{border-bottom:0}
 <div id="appArea"></div>
 </div>
 
-<div class="footer"><span id="footerTxt"></span> | <a onclick="openModal('discModal')"><span id="discClick"></span></a> | <a onclick="openModal('privacyModal')"><span id="privacyLink">Privacy</span></a> | <a onclick="openModal('termsModal')"><span id="termsLink">Terms</span></a><br><a href="mailto:vichoo2020@gmail.com" style="color:var(--acc)">📧 vichoo2020@gmail.com</a></div>
+<div class="footer"><span id="footerTxt"></span> | <a onclick="openModal('discModal')"><span id="discClick"></span></a> | <a onclick="openModal('privacyModal')"><span id="privacyLink">Privacy</span></a> | <a onclick="openModal('termsModal')"><span id="termsLink">Terms</span></a><br><a href="mailto:vichoo2020@gmail.com" class="email-link">📧 vichoo2020@gmail.com</a></div>
 
 <div class="toast-box" id="toastBox"></div>
 
@@ -165,16 +185,16 @@ tr:last-child td{border-bottom:0}
 <div id="authLogin">
 <div class="fg"><label id="authUserLabel">Username</label><input id="authUser" type="text" autocomplete="username"></div>
 <div class="fg"><label id="authPassLabel">Password</label><input id="authPass" type="password" autocomplete="current-password"></div>
-<button class="btn btn-pri" style="width:100%;margin-bottom:10px" id="authLoginBtn" onclick="doLogin()">Login</button>
-<div style="text-align:center;margin-bottom:8px"><button class="btn btn-ghost" style="font-size:13px" id="showRegBtn" onclick="toggleAuth()">Register</button></div>
+<button class="btn btn-pri" class="btn-block-mb" id="authLoginBtn" onclick="doLogin()">Login</button>
+<div class="text-center-mb"><button class="btn btn-ghost" class="ghost-sm" id="showRegBtn" onclick="toggleAuth()">Register</button></div>
 </div>
-<div id="authRegister" style="display:none">
+<div id="authRegister" class="auth-register-hidden">
 <div class="fg"><label id="regUserLabel">Username</label><input id="regUser" type="text" autocomplete="username"></div>
 <div class="fg"><label id="regPassLabel">Password</label><input id="regPass" type="password" autocomplete="new-password"></div>
-<button class="btn btn-pri" style="width:100%;margin-bottom:10px" id="authRegBtn" onclick="doRegister()">Register</button>
-<div style="text-align:center;margin-bottom:8px"><button class="btn btn-ghost" style="font-size:13px" id="showLoginBtn" onclick="toggleAuth()">Login</button></div>
+<button class="btn btn-pri" class="btn-block-mb" id="authRegBtn" onclick="doRegister()">Register</button>
+<div class="text-center-mb"><button class="btn btn-ghost" class="ghost-sm" id="showLoginBtn" onclick="toggleAuth()">Login</button></div>
 </div>
-<button class="btn btn-ghost" style="width:100%" onclick="closeModal('authModal')">✕</button>
+<button class="btn btn-ghost" class="btn-block" onclick="closeModal('authModal')">✕</button>
 </div>
 </div>
 
@@ -183,7 +203,7 @@ tr:last-child td{border-bottom:0}
 <div class="modal">
 <h3 id="priceTitle">Upgrade</h3>
 <div id="priceGrid"></div>
-<button class="btn btn-ghost" style="width:100%;margin-top:10px" onclick="closeModal('priceModal')">✕</button>
+<button class="btn btn-ghost" class="btn-block-mt10" onclick="closeModal('priceModal')">✕</button>
 </div>
 </div>
 
@@ -191,35 +211,35 @@ tr:last-child td{border-bottom:0}
 <div class="modal-overlay" id="discModal">
 <div class="modal">
 <h3 id="discTitle">Disclaimer</h3>
-<p id="discText" style="font-size:13px;line-height:1.8;color:var(--dim)"></p>
-<button class="btn btn-ghost" style="width:100%;margin-top:12px" onclick="closeModal('discModal')">✕</button>
+<p id="discText" class="legal-text"></p>
+<button class="btn btn-ghost" class="btn-block-mt12" onclick="closeModal('discModal')">✕</button>
 </div>
 </div>
 
 <!-- Privacy Modal -->
 <div class="modal-overlay" id="privacyModal">
 <div class="modal">
-<h3 id="privacyTitle" style="color:var(--acc)">Privacy Policy</h3>
-<p id="privacyText" style="font-size:13px;line-height:1.8;color:var(--dim)"></p>
-<button class="btn btn-ghost" style="width:100%;margin-top:12px" onclick="closeModal('privacyModal')">✕</button>
+<h3 id="privacyTitle" class="email-link">Privacy Policy</h3>
+<p id="privacyText" class="legal-text"></p>
+<button class="btn btn-ghost" class="btn-block-mt12" onclick="closeModal('privacyModal')">✕</button>
 </div>
 </div>
 
 <!-- Terms Modal -->
 <div class="modal-overlay" id="termsModal">
 <div class="modal">
-<h3 id="termsTitle" style="color:var(--acc)">Terms of Service</h3>
-<p id="termsText" style="font-size:13px;line-height:1.8;color:var(--dim)"></p>
-<button class="btn btn-ghost" style="width:100%;margin-top:12px" onclick="closeModal('termsModal')">✕</button>
+<h3 id="termsTitle" class="email-link">Terms of Service</h3>
+<p id="termsText" class="legal-text"></p>
+<button class="btn btn-ghost" class="btn-block-mt12" onclick="closeModal('termsModal')">✕</button>
 </div>
 </div>
 
 <!-- Payroll Detail Modal -->
 <div class="modal-overlay" id="payrollDetailModal">
-<div class="modal" style="max-width:520px">
+<div class="modal" class="modal-narrow">
 <h3 id="pdTitle">Payroll Detail</h3>
 <div id="pdContent"></div>
-<button class="btn btn-ghost" style="width:100%;margin-top:10px" onclick="closeModal('payrollDetailModal')">✕</button>
+<button class="btn btn-ghost" class="btn-block-mt10" onclick="closeModal('payrollDetailModal')">✕</button>
 </div>
 </div>
 
